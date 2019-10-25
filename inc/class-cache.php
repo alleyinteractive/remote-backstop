@@ -68,10 +68,16 @@ class Cache {
 	/**
 	 * Load a request from cache.
 	 *
-	 * @return bool|array Request array if the request is cached, false if not.
+	 * @return bool|array|WP_Error Response array or WP_Error if the request is
+	 *                             cached, false if not.
 	 */
 	public function load_request_from_cache() {
-		return wp_cache_get( $this->request_hash(), 'rb-request' );
+		$response = wp_cache_get( $this->request_hash(), 'rb-request' );
+		if ( is_array( $response ) && ! empty( $response['error'] ) ) {
+			$response = new \WP_Error( $response['code'], $response['message'] );
+		}
+
+		return $response;
 	}
 
 	/**
