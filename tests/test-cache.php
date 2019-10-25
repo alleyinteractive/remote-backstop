@@ -57,7 +57,32 @@ class CacheTest extends WP_UnitTestCase {
 	}
 
 	public function test_response_cache_success() {
+		$cache = new Cache(
+			'https://example-success.com',
+			[
+				'headers' => [
+					'x-test' => '1',
+				],
+			]
+		);
+		$expected = [
+			'headers'  => [
+				'Content-Type' => 'application/json',
+			],
+			'body'     => '{"success":true}',
+			'response' => [
+				'code'    => 200,
+				'message' => get_status_header_desc( 200 ),
+			],
+			'cookies'  => [],
+			'filename' => '/tmp/response.json',
+		];
 
+		// Cache the response.
+		$cache->cache_response( $expected );
+
+		// Validate that the response matches what is pulled from cache.
+		$this->assertSame( $expected, $cache->load_request_from_cache() );
 	}
 
 	public function test_response_cache_error() {
