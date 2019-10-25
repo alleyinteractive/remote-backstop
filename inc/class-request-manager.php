@@ -25,6 +25,13 @@ class Request_Manager {
 	public static $hooks_added = false;
 
 	/**
+	 * Caching class.
+	 *
+	 * @var string
+	 */
+	public static $cache_class = __NAMESPACE__ . '\Cache';
+
+	/**
 	 * Register request hooks.
 	 */
 	public function add_hooks() {
@@ -47,6 +54,11 @@ class Request_Manager {
 	 * @return false|array|\WP_Error
 	 */
 	public function pre_http_request( $preempt, $r, $url ) {
+		// Verify that the cache class is usable.
+		if ( ! class_exists( self::$cache_class ) ) {
+			return $preempt;
+		}
+
 		// If this request has already been preempted, don't affect that.
 		if ( false !== $preempt ) {
 			return $preempt;
@@ -90,12 +102,12 @@ class Request_Manager {
 			$r
 		);
 
-		$cache = new Cache( $url, $r );
+		$cache = new self::$cache_class( $url, $r );
 
 		try {
 			if ( $cache->get_down_flag( $options['scope_for_availability_check'] ) ) {
 				// If the resource is unavailable, check for cached data.
-				$cached_response = $cache->load_request_from_cache();
+				$cached_response = $cache->load_response_from_cache();
 				if ( false === $cached_response ) {
 					if ( ! $options['attempt_uncached_request_when_down'] ) {
 						// If the request won't be attempted, fail the request.
@@ -130,7 +142,7 @@ class Request_Manager {
 		} catch ( Exception $e ) {
 			// Load the cached response if it hasn't already been loaded.
 			if ( ! isset( $cached_response ) ) {
-				$cached_response = $cache->load_request_from_cache();
+				$cached_response = $cache->load_response_from_cache();
 			}
 
 			if ( false !== $cached_response ) {

@@ -7,10 +7,12 @@
 
 namespace Remote_Backstop;
 
+use WP_Error;
+
 /**
  * Cache manager class.
  */
-class Cache {
+class Cache implements Request_Cache {
 	/**
 	 * Request URL.
 	 *
@@ -71,10 +73,10 @@ class Cache {
 	 * @return bool|array|WP_Error Response array or WP_Error if the request is
 	 *                             cached, false if not.
 	 */
-	public function load_request_from_cache() {
+	public function load_response_from_cache() {
 		$response = wp_cache_get( $this->request_hash(), 'rb-request' );
 		if ( is_array( $response ) && ! empty( $response['error'] ) ) {
-			$response = new \WP_Error( $response['code'], $response['message'] );
+			$response = new WP_Error( $response['code'], $response['message'] );
 		}
 
 		return $response;
@@ -85,7 +87,7 @@ class Cache {
 	 *
 	 * @todo Consider support for including cookies in the response cache.
 	 *
-	 * @param \WP_Error|array $response Request response.
+	 * @param WP_Error|array $response Request response.
 	 */
 	public function cache_response( $response ) {
 		if ( is_wp_error( $response ) ) {

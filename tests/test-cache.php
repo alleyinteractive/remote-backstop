@@ -82,7 +82,7 @@ class CacheTest extends WP_UnitTestCase {
 		$cache->cache_response( $expected );
 
 		// Validate that the response matches what is pulled from cache.
-		$this->assertSame( $expected, $cache->load_request_from_cache() );
+		$this->assertSame( $expected, $cache->load_response_from_cache() );
 	}
 
 	public function test_response_cache_error() {
@@ -93,7 +93,7 @@ class CacheTest extends WP_UnitTestCase {
 		$cache = new Cache( 'localhost', [] );
 		$cache->cache_response( $error );
 
-		$response = $cache->load_request_from_cache();
+		$response = $cache->load_response_from_cache();
 		$this->assertWPError( $response );
 		$this->assertSame( $error->get_error_code(), $response->get_error_code() );
 		$this->assertSame( $error->get_error_message(), $response->get_error_message() );
@@ -128,6 +128,6 @@ class CacheTest extends WP_UnitTestCase {
 		// Cache the response.
 		$cache->cache_response( $with_cookies );
 
-		$this->assertSame( $expected, $cache->load_request_from_cache() );
+		$this->assertSame( $expected, $cache->load_response_from_cache() );
 	}
 }
