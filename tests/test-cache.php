@@ -15,22 +15,6 @@ use WP_UnitTestCase;
  */
 class CacheTest extends WP_UnitTestCase {
 
-	public function setUp() {
-		parent::setUp();
-
-		// this url give a direct 200 response
-		$url      = 'https://asdftestblog1.files.wordpress.com/2007/09/2007-06-30-dsc_4700-1.jpg';
-
-		$this->cache = new Cache(
-			'http://asdftestblog1.files.wordpress.com',
-			[
-				'headers' => [
-					'x-test' => 'true',
-				]
-			]
-		);
-	}
-
 	/**
 	 * A single example test.
 	 */
@@ -88,5 +72,37 @@ class CacheTest extends WP_UnitTestCase {
 		$this->assertWPError( $response );
 		$this->assertSame( $error->get_error_code(), $response->get_error_code() );
 		$this->assertSame( $error->get_error_message(), $response->get_error_message() );
+	}
+
+	public function test_response_cache_remove_cookies() {
+		$cache = new Cache( 'https://example-cookies.com', [] );
+		$expected = [
+			'headers'  => [],
+			'body'     => 'mmm, cookies',
+			'response' => [
+				'code'    => 200,
+				'message' => get_status_header_desc( 200 ),
+			],
+			'cookies'  => [],
+			'filename' => '',
+		];
+		$with_cookies = array_merge(
+			$expected,
+			[
+				'cookies' => [
+					new \WP_Http_Cookie(
+						[
+							'name'  => 'cookie-1',
+							'value' => 'chocolate chip',
+						]
+					),
+				],
+			]
+		);
+
+		// Cache the response.
+		$cache->cache_response( $with_cookies );
+
+		$this->assertSame( $expected, $cache->load_request_from_cache() );
 	}
 }
