@@ -83,6 +83,8 @@ class Cache {
 	/**
 	 * Cache a remote request.
 	 *
+	 * @todo Consider support for including cookies in the response cache.
+	 *
 	 * @param \WP_Error|array $response Request response.
 	 */
 	public function cache_response( $response ) {
@@ -92,6 +94,9 @@ class Cache {
 				'code'    => $response->get_error_code(),
 				'message' => $response->get_error_message(),
 			];
+		} elseif ( ! empty( $response['cookies'] ) ) {
+			// Don't ever cache response cookies, just in case.
+			$response['cookies'] = [];
 		}
 		wp_cache_set( $this->request_hash(), $response, 'rb-request' );
 	}
