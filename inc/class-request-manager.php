@@ -29,7 +29,7 @@ class Request_Manager {
 	 *
 	 * @var string
 	 */
-	public static $cache_class = __NAMESPACE__ . '\Cache';
+	protected static $cache_class;
 
 	/**
 	 * Register request hooks.
@@ -40,6 +40,38 @@ class Request_Manager {
 
 			self::$hooks_added = true;
 		}
+	}
+
+	/**
+	 * Set the cache class that the request manager should use.
+	 *
+	 * @param string $cache_class Class to use for caching. Should implement
+	 *                            Request_Cache.
+	 */
+	public static function set_cache_class( string $cache_class ) {
+		if ( class_exists( $cache_class ) ) {
+			self::$cache_class = $cache_class;
+		}
+	}
+
+	/**
+	 * Get a new cache object.
+	 *
+	 * @param string $url The request URL.
+	 * @param array  $r   HTTP request arguments.
+	 * @return Request_Cache|null
+	 */
+	public static function get_cache( string $url, array $r ): ?Request_Cache {
+		if ( ! class_exists( self::$cache_class ) ) {
+			return null;
+		}
+
+		$cache = new self::$cache_class( $url, $r );
+		if ( ! $cache instanceof Request_Cache ) {
+			return null;
+		}
+
+		return $cache;
 	}
 
 	/**
@@ -54,11 +86,6 @@ class Request_Manager {
 	 * @return false|array|\WP_Error
 	 */
 	public function pre_http_request( $preempt, $r, $url ) {
-		// Verify that the cache class is usable.
-		if ( ! class_exists( self::$cache_class ) ) {
-			return $preempt;
-		}
-
 		// If this request has already been preempted, don't affect that.
 		if ( false !== $preempt ) {
 			return $preempt;
@@ -66,6 +93,12 @@ class Request_Manager {
 
 		// Only run for GET requests.
 		if ( 'GET' !== $r['method'] ) {
+			return $preempt;
+		}
+
+		// Verify that the cache class is usable.
+		$cache = self::get_cache( (string) $url, (array) $r );
+		if ( ! $cache ) {
 			return $preempt;
 		}
 
@@ -101,8 +134,6 @@ class Request_Manager {
 			$url,
 			$r
 		);
-
-		$cache = new self::$cache_class( $url, $r );
 
 		try {
 			if ( $cache->get_down_flag( $options['scope_for_availability_check'] ) ) {

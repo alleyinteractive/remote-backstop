@@ -19,5 +19,6 @@ require_once __DIR__ . '/inc/class-cache.php';
 require_once __DIR__ . '/inc/class-request-manager.php';
 
 // Register the request manager and add the hooks.
+Request_Manager::set_cache_class( __NAMESPACE__ . '\Cache' );
 $remote_backstop_request_manager = new Request_Manager();
 $remote_backstop_request_manager->add_hooks();
