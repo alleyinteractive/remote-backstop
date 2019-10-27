@@ -31,7 +31,6 @@ function remote_backstop_request_manager(): Request_Manager {
 	if ( ! isset( $request_manager ) ) {
 		// Register the request manager and add the hooks.
 		$request_manager = new Request_Manager( new Cache_Factory() );
-		$request_manager->add_hooks();
 	}
 
 	return $request_manager;

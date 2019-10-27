@@ -38,6 +38,7 @@ class Request_Manager {
 	 */
 	public function __construct( Cache_Factory $cache_factory ) {
 		$this->set_cache_factory( $cache_factory );
+		$this->add_hooks();
 	}
 
 	/**
@@ -58,14 +59,6 @@ class Request_Manager {
 
 			self::$hooks_added = true;
 		}
-	}
-
-	/**
-	 * Deregister request hooks.
-	 */
-	public function remove_hooks() {
-		remove_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1 );
-		self::$hooks_added = false;
 	}
 
 	/**
