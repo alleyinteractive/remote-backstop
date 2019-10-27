@@ -18,7 +18,7 @@ class Cache_Factory {
 	 * @param array  $request_args Request args.
 	 * @return Request_Cache
 	 */
-	public static function build_cache( string $url, array $request_args ): Request_Cache {
+	public function build_cache( string $url, array $request_args ): Request_Cache {
 		return new Cache( $url, $request_args );
 	}
 }

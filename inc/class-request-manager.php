@@ -37,6 +37,15 @@ class Request_Manager {
 	 * @param Cache_Factory $cache_factory Cache factory to create caches.
 	 */
 	public function __construct( Cache_Factory $cache_factory ) {
+		$this->set_cache_factory( $cache_factory );
+	}
+
+	/**
+	 * Set the cache factory used by the instance..
+	 *
+	 * @param Cache_Factory $cache_factory Cache factory to create caches.
+	 */
+	public function set_cache_factory( Cache_Factory $cache_factory ) {
 		$this->cache_factory = $cache_factory;
 	}
 
@@ -67,7 +76,7 @@ class Request_Manager {
 	 * @return Request_Cache|null
 	 */
 	public function get_cache( string $url, array $r ): Request_Cache {
-		return $this->cache_factory::build_cache( $url, $r );
+		return $this->cache_factory->build_cache( $url, $r );
 	}
 
 	/**
