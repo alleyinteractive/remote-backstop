@@ -25,11 +25,20 @@ class Request_Manager {
 	public static $hooks_added = false;
 
 	/**
-	 * Caching class.
+	 * Cache factory.
 	 *
-	 * @var string
+	 * @var Cache_Factory
 	 */
-	protected static $cache_class;
+	protected $cache_factory;
+
+	/**
+	 * Request_Manager constructor.
+	 *
+	 * @param Cache_Factory $cache_factory Cache factory to create caches.
+	 */
+	public function __construct( Cache_Factory $cache_factory ) {
+		$this->cache_factory = $cache_factory;
+	}
 
 	/**
 	 * Register request hooks.
@@ -43,15 +52,11 @@ class Request_Manager {
 	}
 
 	/**
-	 * Set the cache class that the request manager should use.
-	 *
-	 * @param string $cache_class Class to use for caching. Should implement
-	 *                            Request_Cache.
+	 * Deregister request hooks.
 	 */
-	public static function set_cache_class( string $cache_class ) {
-		if ( class_exists( $cache_class ) ) {
-			self::$cache_class = $cache_class;
-		}
+	public function remove_hooks() {
+		remove_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1 );
+		self::$hooks_added = false;
 	}
 
 	/**
@@ -61,17 +66,8 @@ class Request_Manager {
 	 * @param array  $r   HTTP request arguments.
 	 * @return Request_Cache|null
 	 */
-	public static function get_cache( string $url, array $r ): ?Request_Cache {
-		if ( ! class_exists( self::$cache_class ) ) {
-			return null;
-		}
-
-		$cache = new self::$cache_class( $url, $r );
-		if ( ! $cache instanceof Request_Cache ) {
-			return null;
-		}
-
-		return $cache;
+	public function get_cache( string $url, array $r ): Request_Cache {
+		return $this->cache_factory::build_cache( $url, $r );
 	}
 
 	/**
@@ -93,12 +89,6 @@ class Request_Manager {
 
 		// Only run for GET requests.
 		if ( 'GET' !== $r['method'] ) {
-			return $preempt;
-		}
-
-		// Verify that the cache class is usable.
-		$cache = self::get_cache( (string) $url, (array) $r );
-		if ( ! $cache ) {
 			return $preempt;
 		}
 
@@ -134,6 +124,9 @@ class Request_Manager {
 			$url,
 			$r
 		);
+
+		// Build a new cache for the request.
+		$cache = $this->get_cache( (string) $url, (array) $r );
 
 		try {
 			if ( $cache->get_down_flag( $options['scope_for_availability_check'] ) ) {
