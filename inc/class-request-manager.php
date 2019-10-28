@@ -64,12 +64,12 @@ class Request_Manager {
 	/**
 	 * Get a new cache object.
 	 *
-	 * @param string $url The request URL.
-	 * @param array  $r   HTTP request arguments.
+	 * @param string $url          The request URL.
+	 * @param array  $request_args HTTP request arguments.
 	 * @return Request_Cache|null
 	 */
-	public function get_cache( string $url, array $r ): Request_Cache {
-		return $this->cache_factory->build_cache( $url, $r );
+	public function get_cache( string $url, array $request_args ): Request_Cache {
+		return $this->cache_factory->build_cache( $url, $request_args );
 	}
 
 	/**
@@ -77,20 +77,20 @@ class Request_Manager {
 	 *
 	 * @throws Exception (and immediately catches it).
 	 *
-	 * @param false|array|\WP_Error $preempt Whether to preempt an HTTP
-	 *                                       request's return value.
-	 * @param array                 $r       HTTP request arguments.
-	 * @param string                $url     The request URL.
+	 * @param false|array|\WP_Error $preempt      Whether to preempt an HTTP
+	 *                                            request's return value.
+	 * @param array                 $request_args HTTP request arguments.
+	 * @param string                $url          The request URL.
 	 * @return false|array|\WP_Error
 	 */
-	public function pre_http_request( $preempt, $r, $url ) {
+	public function pre_http_request( $preempt, $request_args, $url ) {
 		// If this request has already been preempted, don't affect that.
 		if ( false !== $preempt ) {
 			return $preempt;
 		}
 
 		// Only run for GET requests.
-		if ( 'GET' !== $r['method'] ) {
+		if ( 'GET' !== $request_args['method'] ) {
 			return $preempt;
 		}
 
@@ -108,7 +108,7 @@ class Request_Manager {
 		/**
 		 * Filter options for handling this request in backstop.
 		 *
-		 * @param array  $options {
+		 * @param array  $options      {
 		 *     Options for handling this request in backstop.
 		 *
 		 *     @type string $scope_for_availability_check       What scope to consider when considering
@@ -119,21 +119,21 @@ class Request_Manager {
 		 *                                                      result in an error, that error will be
 		 *                                                      cached and the request will not be
 		 *                                                      attempted again during the 'outage'.
-		 *     @type int $retry_after                           Amount of time to flag a resource as
+		 *     @type int $retry_after  Amount of time to flag a resource as
 		 *                                                      down.
 		 * }
-		 * @param string $url     Request URL.
-		 * @param string $r       Request arguments.
+		 * @param string $url          Request URL.
+		 * @param string $request_args Request arguments.
 		 */
 		$options = apply_filters(
 			'remote_backstop_request_options',
 			$defaults,
 			$url,
-			$r
+			$request_args
 		);
 
 		// Build a new cache for the request.
-		$cache = $this->get_cache( (string) $url, (array) $r );
+		$cache = $this->get_cache( (string) $url, (array) $request_args );
 
 		try {
 			if ( $cache->get_down_flag( $options['scope_for_availability_check'] ) ) {
@@ -154,7 +154,7 @@ class Request_Manager {
 			remove_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1 );
 
 			// Run the full request.
-			$response = wp_remote_request( $url, $r );
+			$response = wp_remote_request( $url, $request_args );
 
 			// Re-add this filter for future requests.
 			add_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1, 3 );
@@ -201,14 +201,14 @@ class Request_Manager {
 			 *                                           response was loaded
 			 *                                           from cache.
 			 * @param string          $url               Request URL.
-			 * @param string          $r                 Request arguments.
+			 * @param string          $request_args      Request arguments.
 			 */
 			return apply_filters(
 				'remote_backstop_failed_request_response',
 				$response,
 				$loaded_from_cache,
 				$url,
-				$r
+				$request_args
 			);
 		}
 	}

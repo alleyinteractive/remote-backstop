@@ -115,13 +115,13 @@ class Mock_Http_Response {
 	 * be returned instead. Regardless, this object unhooks itself from the
 	 * pre_http_request filter.
 	 *
-	 * @param false|array|\WP_Error $preempt Whether to preempt an HTTP request's return value. Default false.
-	 * @param array                 $r        HTTP request arguments.
-	 * @param string                $url      The request URL.
+	 * @param false|array|\WP_Error $preempt      Whether to preempt an HTTP request's return value. Default false.
+	 * @param array                 $request_args HTTP request arguments.
+	 * @param string                $url          The request URL.
 	 * @return mixed Array if the request has been preempted, any value that's
 	 *               not false otherwise.
 	 */
-	public function pre_http_request( $preempt, $r, $url ) {
+	public function pre_http_request( $preempt, $request_args, $url ) {
 		remove_filter( 'pre_http_request', [ $this, 'pre_http_request' ], PHP_INT_MAX );
 		return false === $preempt
 			? $this->with_header( 'x-req-url', $url )->to_array()

@@ -35,8 +35,8 @@ This plugin will cache all remote requests that happen on a WordPress site. Shou
         @type int $retry_after                           Amount of time to flag a resource as
                                                          down.
     }
-    @param string $url     Request URL.
-    @param string $r       Request arguments.
+    @param string $url          Request URL.
+    @param string $request_args Request arguments.
     ```
 * `remote_backstop_failed_request_response`: Filters the failed request response. 
     ```
@@ -45,7 +45,7 @@ This plugin will cache all remote requests that happen on a WordPress site. Shou
                                               response was loaded
                                               from cache.
     @param string          $url               Request URL.
-    @param string          $r                 Request arguments.
+    @param string          $request_args      Request arguments.
     ```
 * `remote_backstop_response_is_error`: Filters what is considered an "error" for the purposes of backstopping.
 By default, a response is an error if it is a WP_Error object or if the response code was >= 500.
