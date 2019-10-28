@@ -94,6 +94,11 @@ class Request_Manager {
 			return $preempt;
 		}
 
+		// Likely impossible edge case, but bail if the url is empty.
+		if ( empty( $url ) ) {
+			return $preempt;
+		}
+
 		$defaults = [
 			'scope_for_availability_check'       => 'host',
 			'attempt_uncached_request_when_down' => false,

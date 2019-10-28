@@ -50,12 +50,23 @@ class Cache implements Request_Cache {
 	 * }
 	 */
 	public function down_cache_keys(): array {
-		$host = wp_parse_url( $this->url, PHP_URL_HOST );
-		return [
-			'host'    => 'rb-down:' . md5( $host ),
-			'url'     => 'rb-down:' . md5( $this->url ),
-			'request' => 'rb-down:' . $this->request_hash(),
+		$keys = [
+			'host'    => null,
+			'url'     => null,
+			'request' => null,
 		];
+
+		if ( ! empty( $this->url ) ) {
+			$keys['url']     = 'rb-down:' . md5( $this->url );
+			$keys['request'] = 'rb-down:' . $this->request_hash();
+
+			$host = wp_parse_url( $this->url, PHP_URL_HOST );
+			if ( ! empty( $host ) ) {
+				$keys['host'] = 'rb-down:' . md5( $host );
+			}
+		}
+
+		return $keys;
 	}
 
 	/**
@@ -111,7 +122,9 @@ class Cache implements Request_Cache {
 	public function set_down_flag( int $duration = MINUTE_IN_SECONDS ) {
 		$cache_keys = $this->down_cache_keys();
 		foreach ( $cache_keys as $cache_key ) {
-			set_transient( $cache_key, 1, $duration );
+			if ( ! empty( $cache_key ) ) {
+				set_transient( $cache_key, 1, $duration );
+			}
 		}
 	}
 
@@ -126,6 +139,13 @@ class Cache implements Request_Cache {
 	public function get_down_flag( string $granularity = 'host' ): bool {
 		$cache_keys = $this->down_cache_keys();
 		$cache_key  = $cache_keys[ $granularity ] ?? $cache_keys['host'];
-		return (bool) get_transient( $cache_key );
+
+		// Ensure we have a valid cache key before accessing it.
+		if ( ! empty( $cache_key ) ) {
+			return (bool) get_transient( $cache_key );
+		}
+
+		// If we failed in looking up the cache, fail gracefully.
+		return true;
 	}
 }
