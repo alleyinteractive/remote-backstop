@@ -14,3 +14,25 @@
 
 namespace Remote_Backstop;
 
+require_once __DIR__ . '/inc/interface-request-cache.php';
+require_once __DIR__ . '/inc/class-cache.php';
+require_once __DIR__ . '/inc/class-cache-factory.php';
+require_once __DIR__ . '/inc/class-request-manager.php';
+
+/**
+ * Create and return the request manager. If the request manager has already
+ * been registered, this simply returns the operating manager.
+ *
+ * @return Request_Manager
+ */
+function remote_backstop_request_manager(): Request_Manager {
+	static $request_manager;
+
+	if ( ! isset( $request_manager ) ) {
+		// Register the request manager and add the hooks.
+		$request_manager = new Request_Manager( new Cache_Factory() );
+	}
+
+	return $request_manager;
+}
+remote_backstop_request_manager();
