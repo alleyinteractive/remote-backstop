@@ -88,7 +88,7 @@ class Log {
 		$entry = [
 			'host' => $host,
 			'url' => $url,
-			'time' => time(), // @todo localized
+			'time' => time(),
 			'args' => $request_args,
 		];
 		// Add this entry to the top of the log.

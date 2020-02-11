@@ -132,6 +132,11 @@ class Cache implements Request_Cache {
 	 * @param int $duration How long to cache. Defaults to 1 minute.
 	 */
 	public function set_down_flag( int $duration = MINUTE_IN_SECONDS ) {
+		/**
+		 * Fires when a resource is being flagged as down.
+		 *
+		 * @param Cache Cache object.
+		 */
 		do_action( 'remote_backstop_down_flag', $this );
 		$cache_keys = $this->down_cache_keys();
 		foreach ( $cache_keys as $cache_key ) {

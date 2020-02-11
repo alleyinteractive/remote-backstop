@@ -44,6 +44,9 @@ class Settings {
 		add_filter( 'remote_backstop_ttl', [ $this, 'remote_backstop_ttl'] );
 	}
 
+	/**
+	 * Register the submenu page if Fieldmanager is available.
+	 */
 	public function register_submenu_page() {
 
 		if ( function_exists( 'fm_register_submenu_page' ) ) {
@@ -90,7 +93,9 @@ class Settings {
 	}
 
 	/**
-	 * @return mixed|void
+	 * Get the Remote Backstop options.
+	 *
+	 * @return array|false
 	 */
 	public static function get_options() {
 		return get_option( self::OPTIONS_KEY );
@@ -112,7 +117,9 @@ class Settings {
 	}
 
 	/**
-	 * @param $ttl
+	 * Filters the time to live for the cached response.
+	 *
+	 * @param int $ttl Time to Live.
 	 *
 	 * @return int
 	 */
