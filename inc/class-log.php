@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains the Settings class.
+ * This file contains the Log class.
  *
  * @package Remote_Backstop
  */
@@ -17,6 +17,16 @@ class Log {
 	 * @var string
 	 */
 	const OPTIONS_KEY = 'remote_backstop_log';
+
+	/**
+	 * Cache key for the log lock, used to prevent concurrency issues.
+	 */
+	const LOG_WRITE_LOCK = 'remote_backstop_log_lock';
+
+	/**
+	 * Cache group.
+	 */
+	const CACHE_GROUP = 'rb_down_log';
 
 	/**
 	 * Adds one time actions.
@@ -43,13 +53,13 @@ class Log {
 	 *
 	 * @param string $host Host.
 	 *
-	 * @return bool|mixed
+	 * @return int|false The Unix timestamp, or false if the host is not found.
 	 */
 	public static function get_last_log_time( $host ) {
 		$log = self::get_log();
 		foreach ( $log as $entry ) {
 			if ( $host === $entry['host'] ) {
-				return $entry['time'];
+				return (int) $entry['time'];
 			}
 		}
 		return false;
@@ -66,12 +76,12 @@ class Log {
 		$last_time = self::get_last_log_time( $host );
 		if ( ! empty( $last_time ) ) {
 			// Only add a new entry for the same host once every 5 minutes.
-			if ( $last_time > 5 * MINUTE_IN_SECONDS ) {
+			if ( time() - $last_time > ( 5 * MINUTE_IN_SECONDS ) ) {
 				// Update with new info.
 				$this->add_to_log( $host, $cache->url, $cache->request_args );
 			}
 		} else {
-			// Create an entry for this host.
+			// Create the first entry for this host.
 			$this->add_to_log( $host, $cache->url, $cache->request_args );
 		}
 	}
@@ -96,8 +106,12 @@ class Log {
 
 		// Truncate to just the most recent 50 entries.
 		$log = array_slice( $log, 0, 50 );
-		// @todo prevent concurrency
-		update_option( self::OPTIONS_KEY, $log );
+
+		if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP ) ) {
+			wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
+			update_option( self::OPTIONS_KEY, $log );
+			wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
+		}
 	}
 
 	/**

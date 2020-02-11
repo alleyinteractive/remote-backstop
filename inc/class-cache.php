@@ -135,7 +135,7 @@ class Cache implements Request_Cache {
 		/**
 		 * Fires when a resource is being flagged as down.
 		 *
-		 * @param Cache Cache object.
+		 * @param $this Cache object.
 		 */
 		do_action( 'remote_backstop_down_flag', $this );
 		$cache_keys = $this->down_cache_keys();

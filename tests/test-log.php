@@ -37,6 +37,10 @@ class LogTest extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * Tests that the log is truncated to 50 entries
+	 * with the most recent entries being saved.
+	 */
 	public function test_log_max() {
 		$mock = new Mock_Http_Response();
 
@@ -52,6 +56,7 @@ class LogTest extends WP_UnitTestCase {
 		$log = Log::get_log();
 		$this->assertEquals( 50, count( $log ) );
 		$this->assertSame( 'example-99.com', $log[0]['host'] );
+		$this->assertTrue( $log[0]['time'] <= time() );
 	}
 
 }
