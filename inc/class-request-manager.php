@@ -155,7 +155,7 @@ class Request_Manager {
 
 			// Run the full request.
 			$response = wp_remote_request( $url, $request_args );
-//vip_safe_wp_remote_get() ?
+
 			// Re-add this filter for future requests.
 			add_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1, 3 );
 

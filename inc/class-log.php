@@ -119,6 +119,8 @@ class Log {
 
 		else :
 			?>
+			<h1><?php esc_html_e( 'Resource Down Log', 'remote-backstop' ); ?></h1>
+			<div class="fm-item-description"><?php esc_html_e( 'Updated at 5 minute intervals.', 'remote-backstop' ); ?></div>
 			<table class="wp-list-table widefat fixed striped">
 				<thead>
 				<tr>
@@ -132,7 +134,7 @@ class Log {
 				foreach ( $log as $log_entry ) :
 					?>
 					<tr>
-						<td><?php echo esc_html( $log_entry['time'] ); ?></td>
+						<td><?php echo esc_html( wp_date( 'm-d-Y g:i:s A', $log_entry['time'] ) ); ?></td>
 						<td><?php echo esc_html( $log_entry['url'] ); ?></td>
 						<td><?php echo esc_html( wp_json_encode( $log_entry['args'] ) ); ?></td>
 					</tr>

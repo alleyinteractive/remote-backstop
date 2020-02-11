@@ -111,7 +111,19 @@ class Cache implements Request_Cache {
 			// Don't ever cache response cookies, just in case.
 			$response['cookies'] = [];
 		}
-		wp_cache_set( $this->request_hash(), $response, 'rb-request' );
+
+		/**
+		 * Filters the cache time to live.
+		 *
+		 * By default, the cache has no expiration.
+		 *
+		 * The expiration can be set on the settings page.
+		 *
+		 * @param $ttl int When to expire the cache, in seconds.
+		 *                 Default 0, no expiration.
+		 */
+		$ttl = (int) apply_filters( 'remote_backstop_ttl', 0 );
+		wp_cache_set( $this->request_hash(), $response, 'rb-request', $ttl );
 	}
 
 	/**

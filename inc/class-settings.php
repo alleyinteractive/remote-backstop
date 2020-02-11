@@ -39,6 +39,13 @@ class Settings {
 		 */
 		$this->required_capability = apply_filters( 'remote_backstop_capabilitiy', $capability );
 
+		add_action( 'after_setup_theme', [ $this, 'register_submenu_page'] );
+		add_filter( 'remote_backstop_enabled', [ $this, 'remote_backstop_disable' ] );
+		add_filter( 'remote_backstop_ttl', [ $this, 'remote_backstop_ttl'] );
+	}
+
+	public function register_submenu_page() {
+
 		if ( function_exists( 'fm_register_submenu_page' ) ) {
 			if ( current_user_can( $this->required_capability ) ) {
 				fm_register_submenu_page(
@@ -53,10 +60,6 @@ class Settings {
 				array( $this, 'add_options' )
 			);
 		}
-
-
-		add_filter( 'remote_backstop_enable', [ $this, 'remote_backstop_enable' ] );
-
 	}
 
 	/**
@@ -67,9 +70,17 @@ class Settings {
 			array(
 				'name'     => static::OPTIONS_KEY,
 				'children' => [
-					'enable' => new \Fieldmanager_Checkbox ( [
-						'label' => 'Enable Remote Backstop',
+					'disable' => new \Fieldmanager_Checkbox ( [
+						'label' => 'Disable Remote Backstop',
 					] ),
+					'ttl' => new \Fieldmanager_Textfield( [
+						'label' => 'Cache TTL (seconds)',
+						'description' => 'Set to 0 to cache indefinitiely.',
+						'defalt_value' => '0',
+						'attributes' => array(
+							'size' => 6,
+						),
+					]),
 				],
 			)
 		);
@@ -77,7 +88,40 @@ class Settings {
 
 		add_filter( 'fm_element_markup_end_' . static::OPTIONS_KEY, [ Log::instance(), 'display' ], 10, 3 );
 	}
-}
 
-// Initialize this tool after theme setup.
-add_action( 'after_setup_theme', [ __NAMESPACE__ . '\\Settings', 'instance' ] );
+	/**
+	 * @return mixed|void
+	 */
+	public static function get_options() {
+		return get_option( self::OPTIONS_KEY );
+	}
+
+	/**
+	 * Filters whether Remote Backstop is enabled.
+	 *
+	 * @param $enabled
+	 *
+	 * @return bool
+	 */
+	public function remote_backstop_disable( $enabled ) {
+		$options = self::get_options();
+		if ( ! empty( $options['disable'] ) ) {
+			return false;
+		}
+		return $enabled;
+	}
+
+	/**
+	 * @param $ttl
+	 *
+	 * @return int
+	 */
+	public function remote_backstop_ttl( $ttl ) {
+		$options = self::get_options();
+		if ( ! empty( $options['ttl'] ) ) {
+			return (int) $options['ttl'];
+		}
+		return $ttl;
+	}
+
+}

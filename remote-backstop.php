@@ -39,4 +39,15 @@ function remote_backstop_request_manager(): Request_Manager {
 
 	return $request_manager;
 }
-remote_backstop_request_manager();
+
+// Initialize settings page.
+Settings::instance();
+
+/**
+ * Filters whether Remote Backstop is enabled.
+ * See the settings page for a checkbox to disable it.
+ */
+if ( apply_filters( 'remote_backstop_enabled', true ) ) {
+	remote_backstop_request_manager();
+}
+
