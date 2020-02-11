@@ -151,7 +151,7 @@ class Log {
 					<tr>
 						<td><?php echo esc_html( wp_date( 'm-d-Y g:i:s A', $log_entry['time'] ) ); ?></td>
 						<td><?php echo esc_html( $log_entry['url'] ); ?></td>
-						<td><?php echo esc_html( wp_json_encode( $log_entry['request_uri'] ) ); ?></td>
+						<td><?php echo esc_html( $log_entry['request_uri'] ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
