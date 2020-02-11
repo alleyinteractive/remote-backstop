@@ -14,11 +14,14 @@
 
 namespace Remote_Backstop;
 
+require_once __DIR__ . '/inc/trait-singleton.php';
 require_once __DIR__ . '/inc/interface-request-cache.php';
 require_once __DIR__ . '/inc/class-cache.php';
 require_once __DIR__ . '/inc/class-cache-factory.php';
 require_once __DIR__ . '/inc/class-request-manager.php';
+require_once __DIR__ . '/inc/class-log.php';
 require_once __DIR__ . '/inc/class-settings.php';
+
 
 /**
  * Create and return the request manager. If the request manager has already

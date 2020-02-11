@@ -204,7 +204,7 @@ class Request_Manager {
 			 * @param string          $request_args      Request arguments.
 			 */
 			return apply_filters(
-				'remote_backstop_failed_request_response', // @todo: here
+				'remote_backstop_failed_request_response',
 				$response,
 				$loaded_from_cache,
 				$url,

@@ -113,3 +113,5 @@ class Log {
 		return $out . ob_get_clean();
 	}
 }
+
+Log::instance();

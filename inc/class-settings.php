@@ -56,7 +56,7 @@ class Settings {
 
 
 		add_filter( 'remote_backstop_enable', [ $this, 'remote_backstop_enable' ] );
-		add_filter( 'remote_backstop_enable_logging', [ $this, 'remote_backstop_enable_logging' ] );
+
 	}
 
 	/**
@@ -68,11 +68,8 @@ class Settings {
 				'name'     => static::OPTIONS_KEY,
 				'children' => [
 					'enable' => [
-						'label' => 'Enable',
+						'label' => 'Enable Remote Backstop',
 					],
-					'enable_logging' => [
-						'label' => 'Enable Logging',
-					]
 				]
 			)
 		);
@@ -83,4 +80,4 @@ class Settings {
 }
 
 // Initialize this tool after theme setup.
-add_action( 'after_setup_theme', array( 'NYPost_Script_Test_Tool', 'instance' ) );
+add_action( 'after_setup_theme', [ 'Settings', 'instance' ] );
