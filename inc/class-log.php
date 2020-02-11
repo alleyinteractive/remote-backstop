@@ -99,7 +99,7 @@ class Log {
 			'host' => $host,
 			'url' => $url,
 			'time' => time(),
-			'args' => $request_args,
+			'request_uri' => $_SERVER['REQUEST_URI'] ?? '',
 		];
 		// Add this entry to the top of the log.
 		array_unshift( $log, $entry );
@@ -141,7 +141,7 @@ class Log {
 				<tr>
 					<td><?php esc_html_e( 'Date/Time', 'remote-backstop' ); ?></td>
 					<td><?php esc_html_e( 'URL', 'remote-backstop' ); ?></td>
-					<td><?php esc_html_e( 'Args', 'remote-backstop' ); ?></td>
+					<td><?php esc_html_e( 'Request URI', 'remote-backstop' ); ?></td>
 				</tr>
 				</thead>
 				<tbody>
@@ -151,7 +151,7 @@ class Log {
 					<tr>
 						<td><?php echo esc_html( wp_date( 'm-d-Y g:i:s A', $log_entry['time'] ) ); ?></td>
 						<td><?php echo esc_html( $log_entry['url'] ); ?></td>
-						<td><?php echo esc_html( wp_json_encode( $log_entry['args'] ) ); ?></td>
+						<td><?php echo esc_html( wp_json_encode( $log_entry['request_uri'] ) ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
