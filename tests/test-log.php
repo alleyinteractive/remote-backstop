@@ -1,6 +1,6 @@
 <?php
 /**
- * Class CacheTest
+ * Class LogTest
  *
  * @package Remote_Backstop
  */
