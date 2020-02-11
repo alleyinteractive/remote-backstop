@@ -67,10 +67,10 @@ class Settings {
 			array(
 				'name'     => static::OPTIONS_KEY,
 				'children' => [
-					'enable' => [
+					'enable' => new \Fieldmanager_Checkbox ( [
 						'label' => 'Enable Remote Backstop',
-					],
-				]
+					] ),
+				],
 			)
 		);
 		$fm_options->activate_submenu_page();
@@ -80,4 +80,4 @@ class Settings {
 }
 
 // Initialize this tool after theme setup.
-add_action( 'after_setup_theme', [ 'Settings', 'instance' ] );
+add_action( 'after_setup_theme', [ __NAMESPACE__ . '\\Settings', 'instance' ] );

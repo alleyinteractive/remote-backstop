@@ -18,14 +18,14 @@ class Cache implements Request_Cache {
 	 *
 	 * @var string
 	 */
-	protected $url;
+	public $url;
 
 	/**
 	 * Request arguments.
 	 *
 	 * @var array
 	 */
-	protected $request_args;
+	public $request_args;
 
 	/**
 	 * Cache constructor.
@@ -120,8 +120,8 @@ class Cache implements Request_Cache {
 	 * @param int $duration How long to cache. Defaults to 1 minute.
 	 */
 	public function set_down_flag( int $duration = MINUTE_IN_SECONDS ) {
+		do_action( 'remote_backstop_down_flag', $this );
 		$cache_keys = $this->down_cache_keys();
-		// @todo do action
 		foreach ( $cache_keys as $cache_key ) {
 			if ( ! empty( $cache_key ) ) {
 				set_transient( $cache_key, 1, $duration );

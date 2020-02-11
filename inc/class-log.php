@@ -18,15 +18,33 @@ class Log {
 	 */
 	const OPTIONS_KEY = 'remote_backstop_log';
 
+	/**
+	 * Adds one time actions.
+	 */
 	public function setUp() {
-		add_filter( 'remote_backstop_failed_request_response', [ $this, 'log_failed_requests' ], 10, 4 );
+		/**
+		 * Log when resources are down.
+		 */
+		add_action( 'remote_backstop_down_flag', [ $this, 'log_down' ], 10, 1 );
 	}
 
+	/**
+	 * Get the complete down log.
+	 *
+	 * @return array
+	 */
 	public static function get_log() {
-		$log = get_transient( self::OPTIONS_KEY );
+		$log = get_option( self::OPTIONS_KEY );
 		return empty( $log ) ? [] : $log;
 	}
 
+	/**
+	 * Get the last log time for a specific host.
+	 *
+	 * @param string $host Host.
+	 *
+	 * @return bool|mixed
+	 */
 	public static function get_last_log_time( $host ) {
 		$log = self::get_log();
 		foreach ( $log as $entry ) {
@@ -36,32 +54,46 @@ class Log {
 		}
 		return false;
 	}
-	public function log_failed_requests( $response, $loaded_from_cache, $url, $request_args ) {
-		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+	/**
+	 * Log when a resource is down.
+	 *
+	 * @param Cache $cache Cache object.
+	 */
+	public function log_down( $cache ) {
+		$host = wp_parse_url( $cache->url, PHP_URL_HOST );
+
 		$last_time = self::get_last_log_time( $host );
 		if ( ! empty( $last_time ) ) {
-			// Only update
+			// Only add a new entry for the same host once every 5 minutes.
 			if ( $last_time > 5 * MINUTE_IN_SECONDS ) {
 				// Update with new info.
-				$this->add_to_log( $host, $url, $loaded_from_cache );
+				$this->add_to_log( $host, $cache->url, $cache->request_args );
 			}
 		} else {
 			// Create an entry for this host.
-			$this->add_to_log( $host, $url, $loaded_from_cache );
+			$this->add_to_log( $host, $cache->url, $cache->request_args );
 		}
-
-		return $response;
 	}
 
-	public function add_to_log( $host, $url, $loaded_from_cache ) {
+	/**
+	 * Log the outage.
+	 *
+	 * @param $host string Host.
+	 * @param $url string URL.
+	 * @param $request_args array Request args.
+	 */
+	public function add_to_log( $host, $url, $request_args ) {
 		$log = self::get_log();
 		$entry = [
+			'host' => $host,
 			'url' => $url,
 			'time' => time(), // @todo localized
-			'cached' => $loaded_from_cache ? 'Y' : 'N',
+			'args' => $request_args,
 		];
 		// Add this entry to the top of the log.
 		array_unshift( $log, $entry );
+
 		// Truncate to just the most recent 50 entries.
 		$log = array_slice( $log, 0, 50 );
 		// @todo prevent concurrency
@@ -81,7 +113,7 @@ class Log {
 	 */
 	public static function display( $out, $fm, $values ) {
 		ob_start();
-		$log = self::getLog();
+		$log = self::get_log();
 		if ( empty( $log ) ) :
 			?><h2><?php esc_html_e( 'No Log.', 'remote-backstop' ); ?></h2><?php
 
@@ -92,7 +124,7 @@ class Log {
 				<tr>
 					<td><?php esc_html_e( 'Date/Time', 'remote-backstop' ); ?></td>
 					<td><?php esc_html_e( 'URL', 'remote-backstop' ); ?></td>
-					<td><?php esc_html_e( 'Cached?', 'remote-backstop' ); ?></td>
+					<td><?php esc_html_e( 'Args', 'remote-backstop' ); ?></td>
 				</tr>
 				</thead>
 				<tbody>
@@ -102,7 +134,7 @@ class Log {
 					<tr>
 						<td><?php echo esc_html( $log_entry['time'] ); ?></td>
 						<td><?php echo esc_html( $log_entry['url'] ); ?></td>
-						<td><?php echo esc_html( $log_entry['cached'] ); ?></td>
+						<td><?php echo esc_html( wp_json_encode( $log_entry['args'] ) ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
