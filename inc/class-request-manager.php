@@ -155,7 +155,7 @@ class Request_Manager {
 
 			// Run the full request.
 			$response = wp_remote_request( $url, $request_args );
-
+//vip_safe_wp_remote_get() ?
 			// Re-add this filter for future requests.
 			add_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1, 3 );
 
@@ -204,7 +204,7 @@ class Request_Manager {
 			 * @param string          $request_args      Request arguments.
 			 */
 			return apply_filters(
-				'remote_backstop_failed_request_response',
+				'remote_backstop_failed_request_response', // @todo: here
 				$response,
 				$loaded_from_cache,
 				$url,

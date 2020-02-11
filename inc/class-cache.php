@@ -121,6 +121,7 @@ class Cache implements Request_Cache {
 	 */
 	public function set_down_flag( int $duration = MINUTE_IN_SECONDS ) {
 		$cache_keys = $this->down_cache_keys();
+		// @todo do action
 		foreach ( $cache_keys as $cache_key ) {
 			if ( ! empty( $cache_key ) ) {
 				set_transient( $cache_key, 1, $duration );
