@@ -89,9 +89,9 @@ class Log {
 	/**
 	 * Log the outage.
 	 *
-	 * @param $host string Host.
-	 * @param $url string URL.
-	 * @param $request_args array Request args.
+	 * @param string $host Host.
+	 * @param string $url URL.
+	 * @param array $request_args Request args.
 	 */
 	public function add_to_log( $host, $url, $request_args ) {
 		$log = self::get_log();
@@ -129,8 +129,9 @@ class Log {
 		ob_start();
 		$log = self::get_log();
 		if ( empty( $log ) ) :
-			?><h2><?php esc_html_e( 'No Log.', 'remote-backstop' ); ?></h2><?php
-
+			?>
+			<h2><?php esc_html_e( 'No Log.', 'remote-backstop' ); ?></h2>
+			<?php
 		else :
 			?>
 			<h1><?php esc_html_e( 'Resource Down Log', 'remote-backstop' ); ?></h1>

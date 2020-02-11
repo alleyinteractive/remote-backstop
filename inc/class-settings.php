@@ -1,12 +1,17 @@
 <?php
 /**
-* This file contains the Settings class.
-*
-* @package Remote_Backstop
-*/
+ * This file contains the Settings class.
+ *
+ * @package Remote_Backstop
+ */
 
 namespace Remote_Backstop;
 
+/**
+ * Class Settings
+ *
+ * @package Remote_Backstop
+ */
 class Settings {
 
 	use Singleton;
@@ -42,6 +47,7 @@ class Settings {
 		add_action( 'after_setup_theme', [ $this, 'register_submenu_page'] );
 		add_filter( 'remote_backstop_enabled', [ $this, 'remote_backstop_disable' ] );
 		add_filter( 'remote_backstop_ttl', [ $this, 'remote_backstop_ttl'] );
+		add_filter( 'remote_backstop_request_options', [ $this, 'remote_backstop_request_options' ], 10, 1 );
 	}
 
 	/**
@@ -79,11 +85,30 @@ class Settings {
 					'ttl' => new \Fieldmanager_Textfield( [
 						'label' => 'Cache TTL (seconds)',
 						'description' => 'Set to 0 to cache indefinitiely.',
-						'defalt_value' => '0',
+						'default_value' => 0,
 						'attributes' => array(
 							'size' => 6,
 						),
-					]),
+					] ),
+					'scope_for_availability_check' => new \Fieldmanager_Select( [
+						'label' => 'Scope for Availability Check',
+						'first_empty' => false,
+						'options' => [
+							'host' => __( 'Host', 'request-backstop' ),
+							'url'  => __( 'URL', 'request-backstop' ),
+							'request' => __( 'Request', 'request-backstop' ),
+						],
+					] ),
+					'attempt_uncached_request_when_down' => new \Fieldmanager_Checkbox( [
+						'label' => 'Attempt Uncached Request When Down',
+					] ),
+					'retry_after' => new \Fieldmanager_Textfield( [
+						'label' => 'Amount of time to flag a resource as down (seconds)',
+						'default_value' => 60,
+						'attributes' => array(
+							'size' => 6,
+						),
+					] ),
 				],
 			)
 		);
@@ -129,6 +154,21 @@ class Settings {
 			return (int) $options['ttl'];
 		}
 		return $ttl;
+	}
+
+	/**
+	 * Overrides the defaults with the selected settings.
+	 *
+	 * @param $args array Options for handling the request.
+	 *
+	 * @return array
+	 */
+	public function remote_backstop_request_options( $args ) {
+		$options = self::get_options();
+		if ( ! empty( $options ) ) {
+			$args = wp_parse_args( $options, $args );
+		}
+		return $args;
 	}
 
 }
