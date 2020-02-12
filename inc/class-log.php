@@ -17,7 +17,7 @@ class Log {
 	use Singleton;
 
 	/**
-	 * Options key name for the log.
+	 * Cache key name for the log.
 	 *
 	 * @var string
 	 */
@@ -49,7 +49,7 @@ class Log {
 	 * @return array
 	 */
 	public static function get_log() {
-		$log = get_option( self::OPTIONS_KEY );
+		$log = wp_cache_get( self::OPTIONS_KEY );
 		return empty( $log ) ? [] : $log;
 	}
 
@@ -114,7 +114,7 @@ class Log {
 
 		if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP ) ) {
 			wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
-			update_option( self::OPTIONS_KEY, $log );
+			wp_cache_set( self::OPTIONS_KEY, $log );
 			wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
 		}
 	}
