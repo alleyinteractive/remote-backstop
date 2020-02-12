@@ -7,6 +7,11 @@
 
 namespace Remote_Backstop;
 
+/**
+ * Class Log
+ *
+ * @package Remote_Backstop
+ */
 class Log {
 
 	use Singleton;
@@ -31,7 +36,7 @@ class Log {
 	/**
 	 * Adds one time actions.
 	 */
-	public function setUp() {
+	public function setup() {
 		/**
 		 * Log when resources are down.
 		 */
@@ -91,15 +96,15 @@ class Log {
 	 *
 	 * @param string $host Host.
 	 * @param string $url URL.
-	 * @param array $request_args Request args.
+	 * @param array  $request_args Request args.
 	 */
 	public function add_to_log( $host, $url, $request_args ) {
-		$log = self::get_log();
+		$log   = self::get_log();
 		$entry = [
-			'host' => $host,
-			'url' => $url,
-			'time' => time(),
-			'request_uri' => $_SERVER['REQUEST_URI'] ?? '',
+			'host'        => $host,
+			'url'         => $url,
+			'time'        => time(),
+			'request_uri' => isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( $_SERVER['REQUEST_URI'] ) : '',
 		];
 		// Add this entry to the top of the log.
 		array_unshift( $log, $entry );
@@ -119,9 +124,9 @@ class Log {
 	 *
 	 * Displays the down log on the settings page.
 	 *
-	 * @param string               $out     Field markup.
-	 * @param \Fieldmanager_Field  $fm      Field instance.
-	 * @param mixed                $values  Current element values.
+	 * @param string              $out     Field markup.
+	 * @param \Fieldmanager_Field $fm      Field instance.
+	 * @param mixed               $values  Current element values.
 	 *
 	 * @return string
 	 */
@@ -156,7 +161,7 @@ class Log {
 				<?php endforeach; ?>
 				</tbody>
 			</table>
-		<?php
+			<?php
 		endif;
 
 		return $out . ob_get_clean();

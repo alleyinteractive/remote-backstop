@@ -7,6 +7,7 @@
 
 namespace Remote_Backstop;
 
+// phpcs:disable WordPressVIPMinimum.Variables.VariableAnalysis.StaticOutsideClass
 /**
  * Make a class into a singleton.
  */
@@ -14,7 +15,7 @@ trait Singleton {
 	/**
 	 * Existing instance.
 	 *
-	 * @var array
+	 * @var object
 	 */
 	protected static $instance;
 
@@ -38,3 +39,4 @@ trait Singleton {
 		// Silence.
 	}
 }
+// phpcs:enable WordPressVIPMinimum.Variables.VariableAnalysis.StaticOutsideClass

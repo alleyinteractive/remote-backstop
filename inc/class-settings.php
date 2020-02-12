@@ -34,7 +34,6 @@ class Settings {
 	 * Set up the admin menu.
 	 */
 	private function setup() {
-
 		$capability = 'manage_options';
 
 		/**
@@ -44,9 +43,9 @@ class Settings {
 		 */
 		$this->required_capability = apply_filters( 'remote_backstop_capabilitiy', $capability );
 
-		add_action( 'after_setup_theme', [ $this, 'register_submenu_page'] );
+		add_action( 'after_setup_theme', [ $this, 'register_submenu_page' ] );
 		add_filter( 'remote_backstop_enabled', [ $this, 'remote_backstop_disable' ] );
-		add_filter( 'remote_backstop_ttl', [ $this, 'remote_backstop_ttl'] );
+		add_filter( 'remote_backstop_ttl', [ $this, 'remote_backstop_ttl' ] );
 		add_filter( 'remote_backstop_request_options', [ $this, 'remote_backstop_request_options' ], 10, 1 );
 	}
 
@@ -54,7 +53,6 @@ class Settings {
 	 * Register the submenu page if Fieldmanager is available.
 	 */
 	public function register_submenu_page() {
-
 		if ( function_exists( 'fm_register_submenu_page' ) ) {
 			if ( current_user_can( $this->required_capability ) ) {
 				fm_register_submenu_page(
@@ -66,7 +64,7 @@ class Settings {
 
 			add_action(
 				'fm_submenu_' . static::OPTIONS_KEY,
-				array( $this, 'add_options' )
+				[ $this, 'add_options' ]
 			);
 		}
 	}
@@ -76,41 +74,51 @@ class Settings {
 	 */
 	public function add_options() {
 		$fm_options = new \Fieldmanager_Group(
-			array(
+			[
 				'name'     => static::OPTIONS_KEY,
 				'children' => [
-					'disable' => new \Fieldmanager_Checkbox ( [
-						'label' => 'Disable Remote Backstop',
-					] ),
-					'ttl' => new \Fieldmanager_Textfield( [
-						'label' => 'Cache TTL (seconds)',
-						'description' => 'Set to 0 to cache indefinitiely.',
-						'default_value' => 0,
-						'attributes' => array(
-							'size' => 6,
-						),
-					] ),
-					'scope_for_availability_check' => new \Fieldmanager_Select( [
-						'label' => 'Scope for Availability Check',
-						'first_empty' => false,
-						'options' => [
-							'host' => __( 'Host', 'request-backstop' ),
-							'url'  => __( 'URL', 'request-backstop' ),
-							'request' => __( 'Request', 'request-backstop' ),
-						],
-					] ),
-					'attempt_uncached_request_when_down' => new \Fieldmanager_Checkbox( [
-						'label' => 'Attempt Uncached Request When Down',
-					] ),
-					'retry_after' => new \Fieldmanager_Textfield( [
-						'label' => 'Amount of time to flag a resource as down (seconds)',
-						'default_value' => 60,
-						'attributes' => array(
-							'size' => 6,
-						),
-					] ),
+					'disable'                            => new \Fieldmanager_Checkbox(
+						[
+							'label' => 'Disable Remote Backstop',
+						]
+					),
+					'ttl'                                => new \Fieldmanager_Textfield(
+						[
+							'label'         => 'Cache TTL (seconds)',
+							'description'   => 'Set to 0 to cache indefinitiely.',
+							'default_value' => 0,
+							'attributes'    => [
+								'size' => 6,
+							],
+						]
+					),
+					'scope_for_availability_check'       => new \Fieldmanager_Select(
+						[
+							'label'       => 'Scope for Availability Check',
+							'first_empty' => false,
+							'options'     => [
+								'host'    => __( 'Host', 'remote-backstop' ),
+								'url'     => __( 'URL', 'remote-backstop' ),
+								'request' => __( 'Request', 'remote-backstop' ),
+							],
+						]
+					),
+					'attempt_uncached_request_when_down' => new \Fieldmanager_Checkbox(
+						[
+							'label' => 'Attempt Uncached Request When Down',
+						]
+					),
+					'retry_after'                        => new \Fieldmanager_Textfield(
+						[
+							'label'         => 'Amount of time to flag a resource as down (seconds)',
+							'default_value' => 60,
+							'attributes'    => [
+								'size' => 6,
+							],
+						]
+					),
 				],
-			)
+			]
 		);
 		$fm_options->activate_submenu_page();
 
@@ -129,7 +137,7 @@ class Settings {
 	/**
 	 * Filters whether Remote Backstop is enabled.
 	 *
-	 * @param $enabled
+	 * @param bool $enabled Enabled.
 	 *
 	 * @return bool
 	 */
@@ -159,7 +167,7 @@ class Settings {
 	/**
 	 * Overrides the defaults with the selected settings.
 	 *
-	 * @param $args array Options for handling the request.
+	 * @param array $args Options for handling the request.
 	 *
 	 * @return array
 	 */
