@@ -23,10 +23,13 @@ class SettingsTest extends WP_UnitTestCase {
 
 		update_option( Settings::OPTIONS_KEY,
 			[
-				'disable' => 0,
-				'ttl' => 43200,
-				'scope_for_availability_check' => 'request',
-				'attempt_uncached_request_when_down' => '1'
+				'global' =>
+					[
+						'disable'                            => 0,
+						'ttl'                                => 43200,
+						'scope_for_availability_check'       => 'request',
+						'attempt_uncached_request_when_down' => '1',
+					],
 			]
 		);
 		$defaults = [
@@ -34,14 +37,14 @@ class SettingsTest extends WP_UnitTestCase {
 			'attempt_uncached_request_when_down' => false,
 			'retry_after'                        => MINUTE_IN_SECONDS,
 		];
-		$options = Settings::instance()->remote_backstop_request_options( $defaults );
+		$options  = Settings::instance()->remote_backstop_request_options( $defaults );
 
 		$expected = [
-			'scope_for_availability_check' => 'request',
+			'scope_for_availability_check'       => 'request',
 			'attempt_uncached_request_when_down' => '1',
-			'retry_after' => 60,
-			'disable' => 0,
-			'ttl' => 43200,
+			'retry_after'                        => 60,
+			'disable'                            => 0,
+			'ttl'                                => 43200,
 		];
 
 		$this->assertEquals( $expected, $options );

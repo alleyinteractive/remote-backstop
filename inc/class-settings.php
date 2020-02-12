@@ -77,43 +77,51 @@ class Settings {
 			[
 				'name'     => static::OPTIONS_KEY,
 				'children' => [
-					'disable'                            => new \Fieldmanager_Checkbox(
+					'disable' => new \Fieldmanager_Checkbox(
 						[
 							'label' => 'Disable Remote Backstop',
 						]
 					),
-					'ttl'                                => new \Fieldmanager_Textfield(
+					'global'  => new \Fieldmanager_Group(
 						[
-							'label'         => 'Cache TTL (seconds)',
-							'description'   => 'Set to 0 to cache indefinitiely.',
-							'default_value' => 0,
-							'attributes'    => [
-								'size' => 6,
-							],
-						]
-					),
-					'scope_for_availability_check'       => new \Fieldmanager_Select(
-						[
-							'label'       => 'Scope for Availability Check',
-							'first_empty' => false,
-							'options'     => [
-								'host'    => __( 'Host', 'remote-backstop' ),
-								'url'     => __( 'URL', 'remote-backstop' ),
-								'request' => __( 'Request', 'remote-backstop' ),
-							],
-						]
-					),
-					'attempt_uncached_request_when_down' => new \Fieldmanager_Checkbox(
-						[
-							'label' => 'Attempt Uncached Request When Down',
-						]
-					),
-					'retry_after'                        => new \Fieldmanager_Textfield(
-						[
-							'label'         => 'Amount of time to flag a resource as down (seconds)',
-							'default_value' => 60,
-							'attributes'    => [
-								'size' => 6,
+							'label'    => 'Global Options',
+							'children' => [
+
+								'ttl'         => new \Fieldmanager_Textfield(
+									[
+										'label'         => 'Cache TTL (seconds)',
+										'description'   => 'Set to 0 to cache indefinitiely.',
+										'default_value' => 0,
+										'attributes'    => [
+											'size' => 6,
+										],
+									]
+								),
+								'scope_for_availability_check' => new \Fieldmanager_Select(
+									[
+										'label'       => 'Scope for Availability Check',
+										'first_empty' => false,
+										'options'     => [
+											'host'    => __( 'Host', 'remote-backstop' ),
+											'url'     => __( 'URL', 'remote-backstop' ),
+											'request' => __( 'Request', 'remote-backstop' ),
+										],
+									]
+								),
+								'attempt_uncached_request_when_down' => new \Fieldmanager_Checkbox(
+									[
+										'label' => 'Attempt Uncached Request When Down',
+									]
+								),
+								'retry_after' => new \Fieldmanager_Textfield(
+									[
+										'label'         => 'Amount of time to flag a resource as down (seconds)',
+										'default_value' => 60,
+										'attributes'    => [
+											'size' => 6,
+										],
+									]
+								),
 							],
 						]
 					),
@@ -158,8 +166,8 @@ class Settings {
 	 */
 	public function remote_backstop_ttl( $ttl ) {
 		$options = self::get_options();
-		if ( ! empty( $options['ttl'] ) ) {
-			return (int) $options['ttl'];
+		if ( ! empty( $options['global']['ttl'] ) ) {
+			return (int) $options['global']['ttl'];
 		}
 		return $ttl;
 	}
@@ -173,8 +181,8 @@ class Settings {
 	 */
 	public function remote_backstop_request_options( $args ) {
 		$options = self::get_options();
-		if ( ! empty( $options ) ) {
-			$args = wp_parse_args( $options, $args );
+		if ( ! empty( $options['global'] ) ) {
+			$args = wp_parse_args( $options['global'], $args );
 		}
 		return $args;
 	}
