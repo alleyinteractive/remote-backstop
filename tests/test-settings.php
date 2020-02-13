@@ -7,7 +7,7 @@
 
 namespace Remote_Backstop\Tests;
 
-use Remote_Backstop\Log;
+use Remote_Backstop\Down_Log;
 use Remote_Backstop\Settings;
 use WP_UnitTestCase;
 

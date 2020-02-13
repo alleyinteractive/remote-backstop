@@ -99,8 +99,9 @@ class Cache implements Request_Cache {
 	 * @todo Consider support for including cookies in the response cache.
 	 *
 	 * @param WP_Error|array $response Request response.
+	 * @param int $ttl Time to live.
 	 */
-	public function cache_response( $response ) {
+	public function cache_response( $response, $ttl = 0 ) {
 		if ( is_wp_error( $response ) ) {
 			$response = [
 				'error'   => true,
@@ -112,17 +113,6 @@ class Cache implements Request_Cache {
 			$response['cookies'] = [];
 		}
 
-		/**
-		 * Filters the cache time to live.
-		 *
-		 * By default, the cache has no expiration.
-		 *
-		 * The expiration can be set on the settings page.
-		 *
-		 * @param $ttl int When to expire the cache, in seconds.
-		 *                 Default 0, no expiration.
-		 */
-		$ttl = (int) apply_filters( 'remote_backstop_ttl', 0 );
 		wp_cache_set( $this->request_hash(), $response, 'rb-request', $ttl );
 	}
 
@@ -132,12 +122,7 @@ class Cache implements Request_Cache {
 	 * @param int $duration How long to cache. Defaults to 1 minute.
 	 */
 	public function set_down_flag( int $duration = MINUTE_IN_SECONDS ) {
-		/**
-		 * Fires when a resource is being flagged as down.
-		 *
-		 * @param $this Cache object.
-		 */
-		do_action( 'remote_backstop_down_flag', $this );
+		remote_backstop_request_manager()->log->log_down( $this );
 		$cache_keys = $this->down_cache_keys();
 		foreach ( $cache_keys as $cache_key ) {
 			if ( ! empty( $cache_key ) ) {

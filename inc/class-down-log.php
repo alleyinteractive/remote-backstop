@@ -12,9 +12,7 @@ namespace Remote_Backstop;
  *
  * @package Remote_Backstop
  */
-class Log {
-
-	use Singleton;
+class Down_Log implements Loggable {
 
 	/**
 	 * Cache key name for the log.
@@ -32,16 +30,6 @@ class Log {
 	 * Cache group.
 	 */
 	const CACHE_GROUP = 'rb_down_log';
-
-	/**
-	 * Adds one time actions.
-	 */
-	public function setup() {
-		/**
-		 * Log when resources are down.
-		 */
-		add_action( 'remote_backstop_down_flag', [ $this, 'log_down' ], 10, 1 );
-	}
 
 	/**
 	 * Get the complete down log.
@@ -112,7 +100,7 @@ class Log {
 		// Truncate to just the most recent 50 entries.
 		$log = array_slice( $log, 0, 50 );
 
-		if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP ) ) {
+		if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP, true ) ) {
 			wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
 			wp_cache_set( self::OPTIONS_KEY, $log );
 			wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
@@ -156,7 +144,7 @@ class Log {
 					<tr>
 						<td><?php echo esc_html( wp_date( 'm-d-Y g:i:s A', $log_entry['time'] ) ); ?></td>
 						<td><?php echo esc_html( $log_entry['url'] ); ?></td>
-						<td><?php echo esc_html( $log_entry['request_uri'] ); ?></td>
+						<td><?php echo esc_url( $log_entry['request_uri'] ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
@@ -167,5 +155,3 @@ class Log {
 		return $out . ob_get_clean();
 	}
 }
-
-Log::instance();

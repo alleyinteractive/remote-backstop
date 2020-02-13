@@ -31,12 +31,16 @@ class Request_Manager {
 	 */
 	protected $cache_factory;
 
+	public $log;
+
 	/**
 	 * Request_Manager constructor.
 	 *
-	 * @param Cache_Factory $cache_factory Cache factory to create caches.
+	 * @param Cache_Factory  $cache_factory  Cache factory to create caches.
+	 * @param Loggable       $log            Log object for logging events.
 	 */
-	public function __construct( Cache_Factory $cache_factory ) {
+	public function __construct( Cache_Factory $cache_factory, Loggable $log ) {
+		$this->log = $log;
 		$this->set_cache_factory( $cache_factory );
 		$this->add_hooks();
 	}
@@ -166,7 +170,18 @@ class Request_Manager {
 			}
 
 			// Cache the response.
-			$cache->cache_response( $response );
+			/**
+			 * Filters the cache time to live.
+			 *
+			 * By default, the cache has no expiration.
+			 *
+			 * The expiration can be set on the settings page.
+			 *
+			 * @param $ttl int When to expire the cache, in seconds.
+			 *                 Default 0, no expiration.
+			 */
+			$ttl = (int) apply_filters( 'remote_backstop_ttl', 0 );
+			$cache->cache_response( $response, $ttl );
 
 			// Return the successful response.
 			return $response;

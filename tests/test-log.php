@@ -7,7 +7,7 @@
 
 namespace Remote_Backstop\Tests;
 
-use Remote_Backstop\Log;
+use Remote_Backstop\Down_Log;
 use WP_UnitTestCase;
 
 /**
@@ -30,7 +30,7 @@ class LogTest extends WP_UnitTestCase {
 
 			$response = wp_remote_get( 'https://example.com/test-1' );
 		}
-		$log = Log::get_log();
+		$log = Down_Log::get_log();
 
 		$this->assertEquals( 1, count( $log ) );
 		$this->assertSame( 'example.com', $log[0]['host'] );
@@ -45,7 +45,7 @@ class LogTest extends WP_UnitTestCase {
 		$mock = new Mock_Http_Response();
 
 		// Do 5 requests to the same host in rapid succession; only 1 log entry should exist.
-		for ( $i = 0; $i < 100; $i++ ) {
+		for ( $i = 0; $i < 52; $i++ ) {
 			$mock->intercept_next_request()
 			     ->with_response_code( 500 )
 			     ->with_body( 'error' );
@@ -53,10 +53,10 @@ class LogTest extends WP_UnitTestCase {
 			// Change the host with each request.
 			$response = wp_remote_get( sprintf( 'https://example-%d.com/test', $i ) );
 		}
-		$log = Log::get_log();
+		$log = Down_Log::get_log();
 		$this->assertEquals( 50, count( $log ) );
-		$this->assertSame( 'example-99.com', $log[0]['host'] );
-		$this->assertTrue( $log[0]['time'] <= time() );
+		$this->assertSame( 'example-51.com', $log[0]['host'] );
+		$this->assertNotEmpty( $log[0]['time'] );
 	}
 
 }

@@ -130,7 +130,7 @@ class Settings {
 		);
 		$fm_options->activate_submenu_page();
 
-		add_filter( 'fm_element_markup_end_' . static::OPTIONS_KEY, [ Log::instance(), 'display' ], 10, 3 );
+		add_filter( 'fm_element_markup_end_' . static::OPTIONS_KEY, [ Down_Log::instance(), 'display' ], 10, 3 );
 	}
 
 	/**
