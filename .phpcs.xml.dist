@@ -30,7 +30,7 @@
 
 	<rule ref="WordPress">
 		<!-- Turn off some rules that we don't like. -->
-    	<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
+    		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
 	</rule>
 
 	<rule ref="WordPress-VIP-Go" />
