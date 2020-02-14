@@ -31,13 +31,18 @@ class Request_Manager {
 	 */
 	protected $cache_factory;
 
+	/**
+	 * Loggable object.
+	 *
+	 * @var Loggable
+	 */
 	public $log;
 
 	/**
 	 * Request_Manager constructor.
 	 *
-	 * @param Cache_Factory  $cache_factory  Cache factory to create caches.
-	 * @param Loggable       $log            Log object for logging events.
+	 * @param Cache_Factory $cache_factory  Cache factory to create caches.
+	 * @param Loggable      $log            Log object for logging events.
 	 */
 	public function __construct( Cache_Factory $cache_factory, Loggable $log ) {
 		$this->log = $log;
