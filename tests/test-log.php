@@ -44,7 +44,6 @@ class LogTest extends WP_UnitTestCase {
 	public function test_log_max() {
 		$mock = new Mock_Http_Response();
 
-		// Do 5 requests to the same host in rapid succession; only 1 log entry should exist.
 		for ( $i = 0; $i < 52; $i++ ) {
 			$mock->intercept_next_request()
 			     ->with_response_code( 500 )
