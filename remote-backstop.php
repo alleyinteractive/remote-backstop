@@ -14,7 +14,6 @@
 
 namespace Remote_Backstop;
 
-require_once __DIR__ . '/inc/trait-singleton.php';
 require_once __DIR__ . '/inc/interface-request-cache.php';
 require_once __DIR__ . '/inc/class-cache.php';
 require_once __DIR__ . '/inc/class-cache-factory.php';
