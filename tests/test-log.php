@@ -7,7 +7,7 @@
 
 namespace Remote_Backstop\Tests;
 
-use Remote_Backstop\Down_Log;
+use Remote_Backstop\Event_Log;
 use WP_UnitTestCase;
 
 /**
@@ -30,7 +30,7 @@ class LogTest extends WP_UnitTestCase {
 
 			$response = wp_remote_get( 'https://example.com/test-1' );
 		}
-		$log = Down_Log::get_log();
+		$log = Event_Log::get_log();
 
 		$this->assertEquals( 1, count( $log ) );
 		$this->assertSame( 'example.com', $log[0]['host'] );
@@ -52,7 +52,7 @@ class LogTest extends WP_UnitTestCase {
 			// Change the host with each request.
 			$response = wp_remote_get( sprintf( 'https://example-%d.com/test', $i ) );
 		}
-		$log = Down_Log::get_log();
+		$log = Event_Log::get_log();
 		$this->assertEquals( 50, count( $log ) );
 		$this->assertSame( 'example-51.com', $log[0]['host'] );
 		$this->assertNotEmpty( $log[0]['time'] );

@@ -174,18 +174,17 @@ class Request_Manager {
 				throw new Exception();
 			}
 
-			// Cache the response.
 			/**
 			 * Filters the cache time to live.
 			 *
 			 * By default, the cache has no expiration.
 			 *
-			 * The expiration can be set on the settings page.
-			 *
 			 * @param $ttl int When to expire the cache, in seconds.
 			 *                 Default 0, no expiration.
 			 */
 			$ttl = (int) apply_filters( 'remote_backstop_ttl', 0 );
+
+			// Cache the response.
 			$cache->cache_response( $response, $ttl );
 
 			// Return the successful response.

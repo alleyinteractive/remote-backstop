@@ -12,7 +12,7 @@ namespace Remote_Backstop;
  *
  * @package Remote_Backstop
  */
-class Down_Log implements Loggable {
+class Event_Log implements Loggable {
 
 	/**
 	 * Cache key name for the log.

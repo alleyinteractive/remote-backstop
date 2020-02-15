@@ -20,8 +20,7 @@ require_once __DIR__ . '/inc/class-cache.php';
 require_once __DIR__ . '/inc/class-cache-factory.php';
 require_once __DIR__ . '/inc/class-request-manager.php';
 require_once __DIR__ . '/inc/interface-loggable.php';
-require_once __DIR__ . '/inc/class-down-log.php';
-require_once __DIR__ . '/inc/class-settings.php';
+require_once __DIR__ . '/inc/class-event-log.php';
 
 
 /**
@@ -35,7 +34,7 @@ function remote_backstop_request_manager(): Request_Manager {
 
 	if ( ! isset( $request_manager ) ) {
 		// Register the request manager and add the hooks.
-		$request_manager = new Request_Manager( new Cache_Factory(), new Down_Log() );
+		$request_manager = new Request_Manager( new Cache_Factory(), new Event_Log() );
 	}
 
 	return $request_manager;
@@ -43,9 +42,9 @@ function remote_backstop_request_manager(): Request_Manager {
 
 /**
  * Filters whether Remote Backstop is enabled.
- * See the settings page for a checkbox to disable it.
+ *
+ * @param bool Whether to enable Remote Backstop.
  */
 if ( apply_filters( 'remote_backstop_enabled', true ) ) {
 	remote_backstop_request_manager();
 }
-
