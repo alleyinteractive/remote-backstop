@@ -163,7 +163,7 @@ class Request_Manager {
 			remove_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1 );
 
 			// Run the full request.
-			$response = wp_remote_request( $url, $request_args );
+			$response = $this->safe_wp_remote_request( $url, $request_args );
 
 			// Re-add this filter for future requests.
 			add_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1, 3 );
@@ -258,5 +258,26 @@ class Request_Manager {
 			$is_error,
 			$response
 		);
+	}
+
+	/**
+	 * Wrapper for wp_remote_request.
+	 * Similar to vip_safe_wp_remote_get, as it ensures a max timeout of 3 seconds.
+	 * Less forgiving than vip_safe_wp_remote_get which will retry a request 3 times.
+	 * This request manager halts the request after just one failure.
+	 *
+	 * @param $url string URL.
+	 * @param $request_args array Request Args.
+	 *
+	 * @return array|WP_Error
+	 */
+	protected function safe_wp_remote_request( $url, $request_args ) {
+		// Ensure a max timeout of 3 seconds.
+		if ( empty( $request_args[ 'timeout' ] ) ) {
+			$request_args[ 'timeout' ] = 1;
+		}
+		$timeout = ( (int) $request_args[ 'timeout' ] > 3 ) ? 3 : (int) $request_args[ 'timeout' ];
+		$request_args = array_merge( $request_args, [ 'timeout' => $timeout ] );
+		return wp_remote_request( $url, $request_args );
 	}
 }
