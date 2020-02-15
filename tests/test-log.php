@@ -9,11 +9,19 @@ namespace Remote_Backstop\Tests;
 
 use Remote_Backstop\Event_Log;
 use WP_UnitTestCase;
+use function Remote_Backstop\remote_backstop_request_manager;
 
 /**
  * Cache test cases.
  */
 class LogTest extends WP_UnitTestCase {
+
+	private $event_log;
+
+	public function setUp() {
+		$this->event_log = remote_backstop_request_manager()->log;
+		$this->event_log->clear_log();
+	}
 
 	/**
 	 * Tests that we only have one entry to multiple requests
@@ -30,8 +38,11 @@ class LogTest extends WP_UnitTestCase {
 
 			$response = wp_remote_get( 'https://example.com/test-1' );
 		}
-		$log = Event_Log::get_log();
 
+		// Call the function that would run on shutdown hook.
+		$this->event_log->log_events();
+
+		$log = Event_Log::get_log();
 		$this->assertEquals( 1, count( $log ) );
 		$this->assertSame( 'example.com', $log[0]['host'] );
 
@@ -52,6 +63,10 @@ class LogTest extends WP_UnitTestCase {
 			// Change the host with each request.
 			$response = wp_remote_get( sprintf( 'https://example-%d.com/test', $i ) );
 		}
+
+		// Call the function that would run on shutdown hook.
+		$this->event_log->log_events();
+
 		$log = Event_Log::get_log();
 		$this->assertEquals( 50, count( $log ) );
 		$this->assertSame( 'example-51.com', $log[0]['host'] );

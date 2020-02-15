@@ -27,7 +27,7 @@ interface Loggable {
 	 *
 	 * @return int|false The Unix timestamp, or false if the host is not found.
 	 */
-	public static function get_last_log_time( $host );
+	public function get_last_log_time( $host );
 
 	/**
 	 * Log when a resource is down.

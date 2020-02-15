@@ -32,12 +32,27 @@ class Event_Log implements Loggable {
 	const CACHE_GROUP = 'rb_down_log';
 
 	/**
+	 * Stores the events until the shutdown hook.
+	 *
+	 * @var array
+	 */
+	protected $events = [];
+
+	/**
+	 * Event_Log constructor.
+	 */
+	public function __construct() {
+
+		add_action( 'shutdown', [ $this, 'log_events'] );
+	}
+
+	/**
 	 * Get the complete down log.
 	 *
 	 * @return array
 	 */
 	public static function get_log() {
-		$log = wp_cache_get( self::OPTIONS_KEY );
+		$log = wp_cache_get( self::OPTIONS_KEY, self::CACHE_GROUP, true );
 		return empty( $log ) ? [] : $log;
 	}
 
@@ -48,8 +63,8 @@ class Event_Log implements Loggable {
 	 *
 	 * @return int|false The Unix timestamp, or false if the host is not found.
 	 */
-	public static function get_last_log_time( $host ) {
-		$log = self::get_log();
+	public function get_last_log_time( $host ) {
+		$log = $this->events + self::get_log();
 		foreach ( $log as $entry ) {
 			if ( $host === $entry['host'] ) {
 				return (int) $entry['time'];
@@ -66,7 +81,7 @@ class Event_Log implements Loggable {
 	public function log_down( $cache ) {
 		$host = wp_parse_url( $cache->url, PHP_URL_HOST );
 
-		$last_time = self::get_last_log_time( $host );
+		$last_time = $this->get_last_log_time( $host );
 		if ( ! empty( $last_time ) ) {
 			// Only add a new entry for the same host once every 5 minutes.
 			if ( time() - $last_time > ( 5 * MINUTE_IN_SECONDS ) ) {
@@ -87,7 +102,7 @@ class Event_Log implements Loggable {
 	 * @param array  $request_args Request args.
 	 */
 	public function add_to_log( $host, $url, $request_args ) {
-		$log   = self::get_log();
+
 		$entry = [
 			'host'        => $host,
 			'url'         => $url,
@@ -95,15 +110,37 @@ class Event_Log implements Loggable {
 			'request_uri' => isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( $_SERVER['REQUEST_URI'] ) : '',
 		];
 		// Add this entry to the top of the log.
-		array_unshift( $log, $entry );
+		array_unshift( $this->events, $entry );
+	}
 
-		// Truncate to just the most recent 50 entries.
-		$log = array_slice( $log, 0, 50 );
-
-		if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP, true ) ) {
-			wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
-			wp_cache_set( self::OPTIONS_KEY, $log );
-			wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
+	/**
+	 * Called on the shutdown hook.
+	 * Writes the events to the cache.
+	 */
+	public function log_events() {
+		// Because we're using a write lock, try 3 times incase it's locked.
+		for ( $i = 0; $i < 3; $i++ ) {
+			if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP, true ) ) {
+				$log = self::get_log();
+				$log = $this->events + $log;
+				// Truncate to just the most recent 50 entries.
+				$log = array_slice( $log, 0, 50 );
+				wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
+				wp_cache_set( self::OPTIONS_KEY, $log, self::CACHE_GROUP );
+				wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
+				break;
+			} else {
+				usleep( 1000 );
+			}
 		}
+	}
+
+	/**
+	 * Clear the log for the current request, as well as the in memory log.
+	 * Useful for unit testing.
+	 */
+	public function clear_log() {
+		$this->events = [];
+		wp_cache_delete( self::OPTIONS_KEY, self::CACHE_GROUP );
 	}
 }
