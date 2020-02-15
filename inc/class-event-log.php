@@ -19,7 +19,7 @@ class Event_Log implements Loggable {
 	 *
 	 * @var string
 	 */
-	const OPTIONS_KEY = 'remote_backstop_log';
+	const LOG_CACHE_KEY = 'remote_backstop_log';
 
 	/**
 	 * Cache key for the log lock, used to prevent concurrency issues.
@@ -52,7 +52,7 @@ class Event_Log implements Loggable {
 	 * @return array
 	 */
 	public static function get_log() {
-		$log = wp_cache_get( self::OPTIONS_KEY, self::CACHE_GROUP, true );
+		$log = wp_cache_get( self::LOG_CACHE_KEY, self::CACHE_GROUP, true );
 		return empty( $log ) ? [] : $log;
 	}
 
@@ -126,7 +126,7 @@ class Event_Log implements Loggable {
 				// Truncate to just the most recent 50 entries.
 				$log = array_slice( $log, 0, 50 );
 				wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
-				wp_cache_set( self::OPTIONS_KEY, $log, self::CACHE_GROUP );
+				wp_cache_set( self::LOG_CACHE_KEY, $log, self::CACHE_GROUP );
 				wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
 				break;
 			} else {
@@ -141,6 +141,6 @@ class Event_Log implements Loggable {
 	 */
 	public function clear_log() {
 		$this->events = [];
-		wp_cache_delete( self::OPTIONS_KEY, self::CACHE_GROUP );
+		wp_cache_delete( self::LOG_CACHE_KEY, self::CACHE_GROUP );
 	}
 }
