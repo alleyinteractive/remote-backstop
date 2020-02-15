@@ -42,8 +42,7 @@ class Event_Log implements Loggable {
 	 * Event_Log constructor.
 	 */
 	public function __construct() {
-
-		add_action( 'shutdown', [ $this, 'log_events'] );
+		add_action( 'shutdown', [ $this, 'log_events' ] );
 	}
 
 	/**
@@ -102,7 +101,6 @@ class Event_Log implements Loggable {
 	 * @param array  $request_args Request args.
 	 */
 	public function add_to_log( $host, $url, $request_args ) {
-
 		$entry = [
 			'host'        => $host,
 			'url'         => $url,
