@@ -120,7 +120,7 @@ class Event_Log implements Loggable {
 		for ( $i = 0; $i < 3; $i++ ) {
 			if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP, true ) ) {
 				$log = self::get_log();
-				$log = $this->events + $log;
+				$log = array_merge( $this->events, $log );
 				// Truncate to just the most recent 50 entries.
 				$log = array_slice( $log, 0, 50 );
 				wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
