@@ -18,14 +18,32 @@ class Cache implements Request_Cache {
 	 *
 	 * @var string
 	 */
-	public $url;
+	protected $url;
 
 	/**
 	 * Request arguments.
 	 *
 	 * @var array
 	 */
-	public $request_args;
+	protected $request_args;
+
+	/**
+	 * Get the URL.
+	 *
+	 * @return string
+	 */
+	public function get_url(): string {
+		return $this->url;
+	}
+
+	/**
+	 * Get request args.
+	 *
+	 * @return array
+	 */
+	public function get_request_args(): array {
+		return $this->request_args;
+	}
 
 	/**
 	 * Cache constructor.

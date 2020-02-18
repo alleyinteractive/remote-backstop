@@ -50,7 +50,7 @@ class Event_Log implements Loggable {
 	 *
 	 * @return array
 	 */
-	public static function get_log() {
+	public static function get_log(): array {
 		$log = wp_cache_get( self::LOG_CACHE_KEY, self::CACHE_GROUP, true );
 		return empty( $log ) ? [] : $log;
 	}
@@ -78,18 +78,18 @@ class Event_Log implements Loggable {
 	 * @param Cache $cache Cache object.
 	 */
 	public function log_down( $cache ) {
-		$host = wp_parse_url( $cache->url, PHP_URL_HOST );
+		$host = wp_parse_url( $cache->get_url(), PHP_URL_HOST );
 
 		$last_time = $this->get_last_log_time( $host );
 		if ( ! empty( $last_time ) ) {
 			// Only add a new entry for the same host once every 5 minutes.
 			if ( time() - $last_time > ( 5 * MINUTE_IN_SECONDS ) ) {
 				// Update with new info.
-				$this->add_to_log( $host, $cache->url, $cache->request_args );
+				$this->add_to_log( $host, $cache->get_url(), $cache->get_request_args() );
 			}
 		} else {
 			// Create the first entry for this host.
-			$this->add_to_log( $host, $cache->url, $cache->request_args );
+			$this->add_to_log( $host, $cache->get_url(), $cache->get_request_args() );
 		}
 	}
 
