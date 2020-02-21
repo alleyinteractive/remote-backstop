@@ -14,6 +14,7 @@ This plugin will cache all remote requests that happen on a WordPress site. Shou
 ## Caveats
 
 * Cookies are not cached with the remote response.
+* This plugin **requires** an external object cache (e.g. memcached, redis).
 
 ## Customizations
 
