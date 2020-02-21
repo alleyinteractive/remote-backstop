@@ -33,14 +33,5 @@ interface Loggable {
 	 * @param string $url          Request URL.
 	 * @param array  $request_args Request arguments.
 	 */
-	public function log_down( string $url, array $request_args = [] ): void;
-
-	/**
-	 * Log the outage.
-	 *
-	 * @param string $host          Host.
-	 * @param string $url           URL.
-	 * @param array  $request_args  Request args.
-	 */
-	public function add_to_log( $host, $url, $request_args );
+	public function log_resource_downtime( string $url, array $request_args = [] ): void;
 }

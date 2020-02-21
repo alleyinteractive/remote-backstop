@@ -40,7 +40,7 @@ class LogTest extends WP_UnitTestCase {
 		}
 
 		// Call the function that would run on shutdown hook.
-		$this->event_log->log_events();
+		$this->event_log->write_events_to_log();
 
 		$log = Event_Log::get_log();
 		$this->assertEquals( 1, count( $log ) );
@@ -65,7 +65,7 @@ class LogTest extends WP_UnitTestCase {
 		}
 
 		// Call the function that would run on shutdown hook.
-		$this->event_log->log_events();
+		$this->event_log->write_events_to_log();
 
 		$log = Event_Log::get_log();
 		$this->assertEquals( 50, count( $log ) );

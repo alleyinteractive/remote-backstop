@@ -46,7 +46,7 @@ class Event_Log implements Loggable {
 	}
 
 	/**
-	 * Get the complete down log.
+	 * Get the complete down log from cache.
 	 *
 	 * @return array
 	 */
@@ -78,7 +78,7 @@ class Event_Log implements Loggable {
 	 * @param string $url          Request URL.
 	 * @param array  $request_args Request arguments.
 	 */
-	public function log_down( string $url, array $request_args = [] ): void {
+	public function log_resource_downtime( string $url, array $request_args = [] ): void {
 		$host = wp_parse_url( $url, PHP_URL_HOST );
 
 		$last_time = $this->get_last_log_time( $host );
@@ -86,11 +86,11 @@ class Event_Log implements Loggable {
 			// Only add a new entry for the same host once every 5 minutes.
 			if ( time() - $last_time > ( 5 * MINUTE_IN_SECONDS ) ) {
 				// Update with new info.
-				$this->add_to_log( $host, $url, $request_args );
+				$this->record_event( $host, $url, $request_args );
 			}
 		} else {
 			// Create the first entry for this host.
-			$this->add_to_log( $host, $url, $request_args );
+			$this->record_event( $host, $url, $request_args );
 		}
 	}
 
@@ -101,7 +101,7 @@ class Event_Log implements Loggable {
 	 * @param string $url URL.
 	 * @param array  $request_args Request args.
 	 */
-	public function add_to_log( $host, $url, $request_args ) {
+	protected function record_event( $host, $url, $request_args ) {
 		$entry = [
 			'host'        => $host,
 			'url'         => $url,
@@ -116,18 +116,18 @@ class Event_Log implements Loggable {
 	 * Called on the shutdown hook.
 	 * Writes the events to the cache.
 	 */
-	public function log_events() {
-		// Because we're using a write lock, try 3 times incase it's locked.
+	public function write_events_to_log() {
+		// Because we're using a write lock, try 3 times in case it's locked.
 		for ( $i = 0; $i < 3; $i++ ) {
 			if ( false === wp_cache_get( self::LOG_WRITE_LOCK, self::CACHE_GROUP, true ) ) {
+				wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
 				$log = self::get_log();
 				$log = array_merge( $this->events, $log );
 				// Truncate to just the most recent 50 entries.
 				$log = array_slice( $log, 0, 50 );
-				wp_cache_set( self::LOG_WRITE_LOCK, 1, self::CACHE_GROUP, 10 );
 				wp_cache_set( self::LOG_CACHE_KEY, $log, self::CACHE_GROUP );
 				wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
-				break;
+				return;
 			} else {
 				usleep( 1000 );
 			}
