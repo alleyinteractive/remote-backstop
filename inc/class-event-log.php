@@ -39,11 +39,12 @@ class Event_Log implements Loggable {
 	protected $events = [];
 
 	/**
-	 * Event_Log constructor.
+	 * Has the shutdown event been hooked? The shutdown action is hooked into
+	 * once an error event has been logged for writing.
+	 *
+	 * @var bool
 	 */
-	public function __construct() {
-		add_action( 'shutdown', [ $this, 'log_events' ] );
-	}
+	protected $shutdown_hooked = false;
 
 	/**
 	 * Get the complete down log from cache.
@@ -110,6 +111,9 @@ class Event_Log implements Loggable {
 		];
 		// Add this entry to the top of the log.
 		array_unshift( $this->events, $entry );
+
+		// Ensure that the event gets written at shutdown.
+		$this->add_shutdown_hook();
 	}
 
 	/**
@@ -141,5 +145,15 @@ class Event_Log implements Loggable {
 	public function clear_log() {
 		$this->events = [];
 		wp_cache_delete( self::LOG_CACHE_KEY, self::CACHE_GROUP );
+	}
+
+	/**
+	 * Add the shutdown hook to write the log events.
+	 */
+	protected function add_shutdown_hook() {
+		if ( ! $this->shutdown_hooked ) {
+			add_action( 'shutdown', [ $this, 'write_events_to_log' ] );
+			$this->shutdown_hooked = true;
+		}
 	}
 }
