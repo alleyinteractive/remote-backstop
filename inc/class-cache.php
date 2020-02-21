@@ -140,7 +140,6 @@ class Cache implements Request_Cache {
 	 * @param int $duration How long to cache. Defaults to 1 minute.
 	 */
 	public function set_down_flag( int $duration = MINUTE_IN_SECONDS ) {
-		remote_backstop_request_manager()->log->log_down( $this );
 		$cache_keys = $this->down_cache_keys();
 		foreach ( $cache_keys as $cache_key ) {
 			if ( ! empty( $cache_key ) ) {

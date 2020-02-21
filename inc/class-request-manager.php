@@ -171,6 +171,7 @@ class Request_Manager {
 			// If the response was an error, attempt to return data from cache.
 			if ( $this->response_is_error( $response ) ) {
 				$cache->set_down_flag( $options['retry_after'] );
+				$this->log->log_down( $cache );
 				throw new Exception();
 			}
 
