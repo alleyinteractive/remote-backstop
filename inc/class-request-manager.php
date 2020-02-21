@@ -266,9 +266,10 @@ class Request_Manager {
 
 	/**
 	 * Wrapper for wp_remote_request.
+	 *
 	 * Similar to vip_safe_wp_remote_get, as it ensures a max timeout of 3 seconds.
 	 * Less forgiving than vip_safe_wp_remote_get which will retry a request 3 times.
-	 * This request manager halts the request after just one failure.
+	 * This request manager starts to pull back requests after just one failure.
 	 *
 	 * @param string $url URL.
 	 * @param array  $request_args Request Args.
@@ -276,12 +277,14 @@ class Request_Manager {
 	 * @return array|WP_Error
 	 */
 	protected function safe_wp_remote_request( $url, $request_args ) {
-		// Ensure a max timeout of 3 seconds.
+		// Ensure a max timeout is set.
 		if ( empty( $request_args['timeout'] ) ) {
 			$request_args['timeout'] = 1;
 		}
-		$timeout      = ( (int) $request_args['timeout'] > 3 ) ? 3 : (int) $request_args['timeout'];
-		$request_args = array_merge( $request_args, [ 'timeout' => $timeout ] );
+
+		// Ensure the timeout is at most 3 seconds.
+		$request_args['timeout'] = min( 3, (float) $request_args['timeout'] );
+
 		return wp_remote_request( $url, $request_args );
 	}
 }
