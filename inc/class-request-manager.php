@@ -184,10 +184,12 @@ class Request_Manager {
 			 *
 			 * By default, the cache has no expiration.
 			 *
-			 * @param $ttl int When to expire the cache, in seconds.
-			 *                 Default 0, no expiration.
+			 * @param int    $ttl          When to expire the cache, in seconds.
+			 *                             Default 0, no expiration.
+			 * @param string $url          Request URL.
+			 * @param string $request_args Request arguments.
 			 */
-			$ttl = (int) apply_filters( 'remote_backstop_ttl', 0 );
+			$ttl = (int) apply_filters( 'remote_backstop_ttl', 0, $url, $request_args );
 
 			// Cache the response.
 			$cache->cache_response( $response, $ttl );
