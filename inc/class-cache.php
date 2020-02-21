@@ -28,24 +28,6 @@ class Cache implements Request_Cache {
 	protected $request_args;
 
 	/**
-	 * Get the URL.
-	 *
-	 * @return string
-	 */
-	public function get_url(): string {
-		return $this->url;
-	}
-
-	/**
-	 * Get request args.
-	 *
-	 * @return array
-	 */
-	public function get_request_args(): array {
-		return $this->request_args;
-	}
-
-	/**
 	 * Cache constructor.
 	 *
 	 * @param string $url          Request URL.

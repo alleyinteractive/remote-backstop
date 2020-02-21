@@ -32,9 +32,10 @@ interface Loggable {
 	/**
 	 * Log when a resource is down.
 	 *
-	 * @param Cache $cache  Cache object.
+	 * @param string $url          Request URL.
+	 * @param array  $request_args Request arguments.
 	 */
-	public function log_down( $cache );
+	public function log_down( string $url, array $request_args = [] ): void;
 
 	/**
 	 * Log the outage.

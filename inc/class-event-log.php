@@ -75,21 +75,22 @@ class Event_Log implements Loggable {
 	/**
 	 * Log when a resource is down.
 	 *
-	 * @param Cache $cache Cache object.
+	 * @param string $url          Request URL.
+	 * @param array  $request_args Request arguments.
 	 */
-	public function log_down( $cache ) {
-		$host = wp_parse_url( $cache->get_url(), PHP_URL_HOST );
+	public function log_down( string $url, array $request_args = [] ): void {
+		$host = wp_parse_url( $url, PHP_URL_HOST );
 
 		$last_time = $this->get_last_log_time( $host );
 		if ( ! empty( $last_time ) ) {
 			// Only add a new entry for the same host once every 5 minutes.
 			if ( time() - $last_time > ( 5 * MINUTE_IN_SECONDS ) ) {
 				// Update with new info.
-				$this->add_to_log( $host, $cache->get_url(), $cache->get_request_args() );
+				$this->add_to_log( $host, $url, $request_args );
 			}
 		} else {
 			// Create the first entry for this host.
-			$this->add_to_log( $host, $cache->get_url(), $cache->get_request_args() );
+			$this->add_to_log( $host, $url, $request_args );
 		}
 	}
 

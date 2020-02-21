@@ -93,6 +93,10 @@ class Request_Manager {
 	 * @return false|array|\WP_Error
 	 */
 	public function pre_http_request( $preempt, $request_args, $url ) {
+		// Force proper data types.
+		$url          = (string) $url;
+		$request_args = (array) $request_args;
+
 		// If this request has already been preempted, don't affect that.
 		if ( false !== $preempt ) {
 			return $preempt;
@@ -142,7 +146,7 @@ class Request_Manager {
 		);
 
 		// Build a new cache for the request.
-		$cache = $this->get_cache( (string) $url, (array) $request_args );
+		$cache = $this->get_cache( $url, $request_args );
 
 		try {
 			if ( $cache->get_down_flag( $options['scope_for_availability_check'] ) ) {
@@ -171,7 +175,7 @@ class Request_Manager {
 			// If the response was an error, attempt to return data from cache.
 			if ( $this->response_is_error( $response ) ) {
 				$cache->set_down_flag( $options['retry_after'] );
-				$this->log->log_down( $cache );
+				$this->log->log_down( $url, $request_args );
 				throw new Exception();
 			}
 
