@@ -28,7 +28,11 @@
 	<!-- https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
 	<config name="minimum_supported_wp_version" value="4.6"/>
 
-	<rule ref="WordPress" />
+	<rule ref="WordPress">
+		<!-- Turn off some rules that we don't like. -->
+    		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
+	</rule>
+
 	<rule ref="WordPress-VIP-Go" />
 
 	<rule ref="Generic.Arrays.DisallowLongArraySyntax" />

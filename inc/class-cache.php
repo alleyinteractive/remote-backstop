@@ -99,8 +99,9 @@ class Cache implements Request_Cache {
 	 * @todo Consider support for including cookies in the response cache.
 	 *
 	 * @param WP_Error|array $response Request response.
+	 * @param int            $ttl Time to live.
 	 */
-	public function cache_response( $response ) {
+	public function cache_response( $response, $ttl = 0 ) {
 		if ( is_wp_error( $response ) ) {
 			$response = [
 				'error'   => true,
@@ -111,7 +112,8 @@ class Cache implements Request_Cache {
 			// Don't ever cache response cookies, just in case.
 			$response['cookies'] = [];
 		}
-		wp_cache_set( $this->request_hash(), $response, 'rb-request' );
+
+		wp_cache_set( $this->request_hash(), $response, 'rb-request', $ttl );
 	}
 
 	/**

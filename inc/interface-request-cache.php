@@ -50,9 +50,10 @@ interface Request_Cache {
 	/**
 	 * Cache a remote request.
 	 *
-	 * @param \WP_Error|array $response Request response.
+	 * @param \WP_Error|array $response  Request response.
+	 * @param int             $ttl       Cache time to live.
 	 */
-	public function cache_response( $response );
+	public function cache_response( $response, int $ttl = 0 );
 
 	/**
 	 * Cache downtime.

@@ -32,11 +32,20 @@ class Request_Manager {
 	protected $cache_factory;
 
 	/**
+	 * Loggable object.
+	 *
+	 * @var Loggable
+	 */
+	public $log;
+
+	/**
 	 * Request_Manager constructor.
 	 *
-	 * @param Cache_Factory $cache_factory Cache factory to create caches.
+	 * @param Cache_Factory $cache_factory  Cache factory to create caches.
+	 * @param Loggable      $log            Log object for logging events.
 	 */
-	public function __construct( Cache_Factory $cache_factory ) {
+	public function __construct( Cache_Factory $cache_factory, Loggable $log ) {
+		$this->log = $log;
 		$this->set_cache_factory( $cache_factory );
 		$this->add_hooks();
 	}
@@ -84,6 +93,10 @@ class Request_Manager {
 	 * @return false|array|\WP_Error
 	 */
 	public function pre_http_request( $preempt, $request_args, $url ) {
+		// Force proper data types.
+		$url          = (string) $url;
+		$request_args = (array) $request_args;
+
 		// If this request has already been preempted, don't affect that.
 		if ( false !== $preempt ) {
 			return $preempt;
@@ -133,7 +146,7 @@ class Request_Manager {
 		);
 
 		// Build a new cache for the request.
-		$cache = $this->get_cache( (string) $url, (array) $request_args );
+		$cache = $this->get_cache( $url, $request_args );
 
 		try {
 			if ( $cache->get_down_flag( $options['scope_for_availability_check'] ) ) {
@@ -154,7 +167,7 @@ class Request_Manager {
 			remove_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1 );
 
 			// Run the full request.
-			$response = wp_remote_request( $url, $request_args );
+			$response = $this->safe_wp_remote_request( $url, $request_args );
 
 			// Re-add this filter for future requests.
 			add_filter( 'pre_http_request', [ $this, 'pre_http_request' ], 1, 3 );
@@ -162,11 +175,24 @@ class Request_Manager {
 			// If the response was an error, attempt to return data from cache.
 			if ( $this->response_is_error( $response ) ) {
 				$cache->set_down_flag( $options['retry_after'] );
+				$this->log->log_resource_downtime( $url, $request_args );
 				throw new Exception();
 			}
 
+			/**
+			 * Filters the cache time to live.
+			 *
+			 * By default, the cache has no expiration.
+			 *
+			 * @param int    $ttl          When to expire the cache, in seconds.
+			 *                             Default 0, no expiration.
+			 * @param string $url          Request URL.
+			 * @param string $request_args Request arguments.
+			 */
+			$ttl = (int) apply_filters( 'remote_backstop_ttl', 0, $url, $request_args );
+
 			// Cache the response.
-			$cache->cache_response( $response );
+			$cache->cache_response( $response, $ttl );
 
 			// Return the successful response.
 			return $response;
@@ -238,5 +264,29 @@ class Request_Manager {
 			$is_error,
 			$response
 		);
+	}
+
+	/**
+	 * Wrapper for wp_remote_request.
+	 *
+	 * Similar to vip_safe_wp_remote_get, as it ensures a max timeout of 3 seconds.
+	 * Less forgiving than vip_safe_wp_remote_get which will retry a request 3 times.
+	 * This request manager starts to pull back requests after just one failure.
+	 *
+	 * @param string $url URL.
+	 * @param array  $request_args Request Args.
+	 *
+	 * @return array|WP_Error
+	 */
+	protected function safe_wp_remote_request( $url, $request_args ) {
+		// Ensure a max timeout is set.
+		if ( empty( $request_args['timeout'] ) ) {
+			$request_args['timeout'] = 1;
+		}
+
+		// Ensure the timeout is at most 3 seconds.
+		$request_args['timeout'] = min( 3, (float) $request_args['timeout'] );
+
+		return wp_remote_request( $url, $request_args );
 	}
 }
