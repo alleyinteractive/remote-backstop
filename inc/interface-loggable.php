@@ -1,6 +1,6 @@
 <?php
 /**
- * This file contains the Loggable Interface.
+ * This file contains the Loggable Interface
  *
  * @package Remote_Backstop
  */
@@ -8,9 +8,7 @@
 namespace Remote_Backstop;
 
 /**
- * Interface Loggable
- *
- * @package Remote_Backstop
+ * Loggable interface.
  */
 interface Loggable {
 	/**
@@ -45,5 +43,4 @@ interface Loggable {
 	 * @param array  $request_args  Request args.
 	 */
 	public function add_to_log( $host, $url, $request_args );
-
 }
