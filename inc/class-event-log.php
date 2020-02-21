@@ -117,8 +117,12 @@ class Event_Log implements Loggable {
 	}
 
 	/**
-	 * Called on the shutdown hook.
 	 * Writes the events to the cache.
+	 *
+	 * Called on the shutdown hook. This will attempt up to three times to write
+	 * the events to the log cache, checking a write lock each time. If there is
+	 * an active lock, it will `usleep()` for 0.01s. Therefore, this method may
+	 * sleep for up to 0.02s total during shutdown.
 	 */
 	public function write_events_to_log() {
 		// Because we're using a write lock, try 3 times in case it's locked.
@@ -132,8 +136,9 @@ class Event_Log implements Loggable {
 				wp_cache_set( self::LOG_CACHE_KEY, $log, self::CACHE_GROUP );
 				wp_cache_delete( self::LOG_WRITE_LOCK, self::CACHE_GROUP );
 				return;
-			} else {
-				usleep( 1000 );
+			} elseif ( $i < 2 ) {
+				// Wait for 0.01 seconds before trying again.
+				usleep( 10000 );
 			}
 		}
 	}
