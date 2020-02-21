@@ -113,6 +113,12 @@ class Cache implements Request_Cache {
 			$response['cookies'] = [];
 		}
 
+		/*
+		 * This uses the cache API vs the transients API to ensure it never
+		 * writes to the database. If a site were to not have an external object
+		 * cache, this would add performance concerns including, potentially,
+		 * significant database bloat.
+		 */
 		wp_cache_set( $this->request_hash(), $response, 'rb-request', $ttl );
 	}
 
