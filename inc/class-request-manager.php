@@ -102,8 +102,15 @@ class Request_Manager {
 			return $preempt;
 		}
 
-		// Only run for GET requests.
-		if ( 'GET' !== $request_args['method'] ) {
+		// Filter request specifics to determine whether or not the request should be preempted.
+		// Defaults to allowing only GET requests.
+		$should_backstop = apply_filters(
+			'remote_backstop_should_run',
+			'GET' === $request_args['method'],
+			$url,
+			$request_args
+		);
+		if ( ! $should_backstop  ) {
 			return $preempt;
 		}
 
