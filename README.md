@@ -39,7 +39,7 @@ This plugin will cache all remote requests that happen on a WordPress site. Shou
     @param string $url          Request URL.
     @param string $request_args Request arguments.
     ```
-* `remote_backstop_failed_request_response`: Filters the failed request response. 
+* `remote_backstop_failed_request_response`: Filters the failed request response.
     ```
     @param array|\WP_Error $response          Response.
     @param bool            $loaded_from_cache Whether or not the
@@ -53,4 +53,11 @@ By default, a response is an error if it is a WP_Error object or if the response
     ```
     @param bool            $is_error Was this response an error?
     @param array|\WP_Error $response Response.
+    ```
+* `'remote_backstop_should_intercept_request'`: Filters request specifics to determine whether or not a request should be intercepted.
+    ```
+    @param bool                 Should this request be intercepted?
+                                Defaults to true for GET requests.
+    @param string $url          The request URL.
+    @param string $request_args HTTP request arguments.
     ```
