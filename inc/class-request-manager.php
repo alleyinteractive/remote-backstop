@@ -106,7 +106,7 @@ class Request_Manager {
 		 * Filter request specifics to determine whether or not the request should be intercepted.
 		 *
 		 * @param bool                 Should this request be intercepted?
-		 *                             Defaults to true for intercepting only GET requests.
+		 *                             Defaults to true for GET requests.
 		 * @param string $url          The request URL.
 		 * @param string $request_args HTTP request arguments.
 		 */
