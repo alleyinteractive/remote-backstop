@@ -110,7 +110,7 @@ class Request_Manager {
 			$url,
 			$request_args
 		);
-		if ( ! $should_backstop  ) {
+		if ( ! $should_backstop ) {
 			return $preempt;
 		}
 
