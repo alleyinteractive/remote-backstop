@@ -103,19 +103,20 @@ class Request_Manager {
 		}
 
 		/**
-		 * Filter request specifics to determine whether or not the request should be preempted.
-		 * Defaults to allowing only GET requests.
+		 * Filter request specifics to determine whether or not the request should be intercepted.
 		 *
-		 * @since 0.1.0
-		 * @param bool Defaults to true, allowing only GET requests.
+		 * @param bool                 Should this request be intercepted?
+		 *                             Defaults to true for intercepting only GET requests.
+		 * @param string $url          The request URL.
+		 * @param string $request_args HTTP request arguments.
 		 */
-		$should_backstop = apply_filters(
-			'remote_backstop_should_run',
+		$should_intercept_request = apply_filters(
+			'remote_backstop_should_intercept_request',
 			'GET' === $request_args['method'],
 			$url,
 			$request_args
 		);
-		if ( ! $should_backstop ) {
+		if ( ! $should_intercept_request ) {
 			return $preempt;
 		}
 
