@@ -19,8 +19,8 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 	protected $cache;
 	protected $cache_factory;
 
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
 
 		// Set the request manager's cache class to a mock that we'll use.
 		$this->cache = $this->createMock( '\Remote_Backstop\Cache' );
@@ -30,11 +30,11 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 		remote_backstop_request_manager()->set_cache_factory( $this->cache_factory );
 	}
 
-	public function tearDown() {
+	public function tear_down() {
 		// Restore the request manager's cache factory to the default.
 		remote_backstop_request_manager()->set_cache_factory( new Cache_Factory() );
 
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 			PHP_INT_MAX
 		);
 
-		$response = wp_remote_get( 'http://localhost' );
+		$response = wp_remote_get( 'http://localhost' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$this->assertWPError( $response );
 		$this->assertSame( 'test_successful_requests', $response->get_error_code() );
 	}
@@ -72,7 +72,7 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 			0
 		);
 
-		$response = wp_remote_get( 'http://localhost' );
+		$response = wp_remote_get( 'http://localhost' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$this->assertWPError( $response );
 		$this->assertSame( 'test_preempted_requests', $response->get_error_code() );
 	}
@@ -99,7 +99,7 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 		$this->cache->method( 'get_down_flag' )->willReturn( true );
 		$this->cache->method( 'load_response_from_cache' )->willReturn( false );
 
-		$response = wp_remote_get( 'https://example.com/' );
+		$response = wp_remote_get( 'https://example.com/' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 
 		$this->assertWPError( $response );
 		$this->assertSame( 'unavailable', $response->get_error_code() );
@@ -117,7 +117,7 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 		$this->cache->method( 'get_down_flag' )->willReturn( true );
 		$this->cache->method( 'load_response_from_cache' )->willReturn( $mock1->to_array() );
 
-		$response = wp_remote_get( 'https://example.com/' );
+		$response = wp_remote_get( 'https://example.com/' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 
 		$this->assertSame( 'cached response', wp_remote_retrieve_body( $response ) );
 	}
@@ -139,7 +139,7 @@ class Remote_Manager_Test extends WP_UnitTestCase {
 		$this->cache->method( 'get_down_flag' )->willReturn( true );
 		$this->cache->method( 'load_response_from_cache' )->willReturn( false );
 
-		$response = wp_remote_get( 'https://example.com/' );
+		$response = wp_remote_get( 'https://example.com/' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 
 		$this->assertSame( 'uncached response', wp_remote_retrieve_body( $response ) );
 	}

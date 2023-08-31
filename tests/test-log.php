@@ -17,7 +17,7 @@ class LogTest extends WP_UnitTestCase {
 
 	private $log;
 
-	public function setUp() {
+	public function set_up() {
 		$this->log = new Event_Log();
 	}
 

@@ -75,7 +75,10 @@ class Cache implements Request_Cache {
 	 * @return string Cache key.
 	 */
 	public function request_hash(): string {
-		return md5( $this->url . wp_json_encode( $this->request_args ) );
+		$cache_key_data = $this->request_args;
+		// _qm_key is a Query Monitor key that is unique to each request.
+		unset( $cache_key_data['_qm_key'] );
+		return md5( $this->url . wp_json_encode( $cache_key_data ) );
 	}
 
 	/**

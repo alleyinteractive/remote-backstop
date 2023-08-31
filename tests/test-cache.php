@@ -130,4 +130,47 @@ class CacheTest extends WP_UnitTestCase {
 
 		$this->assertSame( $expected, $cache->load_response_from_cache() );
 	}
+
+	/**
+	 * Tests that the cache key ignores the _qm_key argument.
+	 */
+	public function test_cache_key_ignore_arg() {
+		$cache = new Cache(
+			'https://example-success.com',
+			[
+				'headers' => [
+					'x-test' => '1',
+				],
+				'_qm_key' => 'ignore-me-39238282',
+			]
+		);
+		$expected = [
+			'headers'  => [
+				'Content-Type' => 'application/json',
+			],
+			'body'     => '{"success":true}',
+			'response' => [
+				'code'    => 200,
+				'message' => get_status_header_desc( 200 ),
+			],
+			'cookies'  => [],
+			'filename' => '/tmp/response.json',
+		];
+
+		// Cache the response.
+		$cache->cache_response( $expected );
+
+		$cache_two = new Cache(
+			'https://example-success.com',
+			[
+				'headers' => [
+					'x-test' => '1',
+				],
+				'_qm_key' => 'ignore-me-349334923333',
+			]
+		);
+		// Validate that this new request (with a different _qm_key) finds a cached result.
+		$this->assertSame( $expected, $cache_two->load_response_from_cache() );
+		$this->assertSame( $cache->load_response_from_cache(), $cache_two->load_response_from_cache() );
+	}
 }
