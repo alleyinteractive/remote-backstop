@@ -76,8 +76,13 @@ class Cache implements Request_Cache {
 	 */
 	public function request_hash(): string {
 		$cache_key_data = $this->request_args;
-		// _qm_key is a Query Monitor key that is unique to each request.
-		unset( $cache_key_data['_qm_key'] );
+		// Add filter to allow for ignoring certain cache keys
+		/**
+		 * Filter the cache keys to ignore.
+		 */
+		$ignored_keys = apply_filters( 'rb_request_cache_keys_to_ignore', [] );
+		// remove ignored keys from cache key data using intersect
+		$cache_key_data = array_diff_key( $cache_key_data, array_flip( $ignored_keys ) );
 		return md5( $this->url . wp_json_encode( $cache_key_data ) );
 	}
 
