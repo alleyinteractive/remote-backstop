@@ -23,7 +23,7 @@ class Integrations_Test extends WP_UnitTestCase {
 		     ->with_body( 'test 1' );
 
 		// Make the first request. This will cache the response.
-		$response = wp_remote_get( 'https://example.com/test-1' );
+		$response = wp_remote_get( 'https://example.com/test-1' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$this->assertSame( 'test 1', wp_remote_retrieve_body( $response ) );
 
 		$mock = new Mock_Http_Response();
@@ -32,13 +32,13 @@ class Integrations_Test extends WP_UnitTestCase {
 		     ->with_body( 'error' );
 
 		// The new mock will return an error and the cached response will return.
-		$response = wp_remote_get( 'https://example.com/test-1' );
+		$response = wp_remote_get( 'https://example.com/test-1' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$this->assertSame( 'test 1', wp_remote_retrieve_body( $response ) );
 
 		$mock->intercept_next_request();
 
 		// Test the test. The new domain will not be cached, and should hit the error response.
-		$response = wp_remote_get( 'https://different-example.com/' );
+		$response = wp_remote_get( 'https://different-example.com/' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$this->assertSame( 'error', wp_remote_retrieve_body( $response ) );
 
 		// Set up a mock that should never be queried, to verify the cache.
@@ -46,7 +46,7 @@ class Integrations_Test extends WP_UnitTestCase {
 		     ->with_body( 'if you can read this, the test failed' );
 
 		// Lastly, the response should hit the cache again.
-		$response = wp_remote_get( 'https://example.com/test-1' );
+		$response = wp_remote_get( 'https://example.com/test-1' ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$this->assertSame( 'test 1', wp_remote_retrieve_body( $response ) );
 	}
 }

@@ -75,7 +75,16 @@ class Cache implements Request_Cache {
 	 * @return string Cache key.
 	 */
 	public function request_hash(): string {
-		return md5( $this->url . wp_json_encode( $this->request_args ) );
+		$cache_key_data = $this->request_args;
+
+		/**
+		 * Filter the cache keys to ignore.
+		 *
+		 * @param array Array of cache keys to ignore.
+		 */
+		$ignored_keys   = apply_filters( 'rb_request_cache_keys_to_ignore', [] );
+		$cache_key_data = array_diff_key( $cache_key_data, array_flip( $ignored_keys ) );
+		return md5( $this->url . wp_json_encode( $cache_key_data ) );
 	}
 
 	/**

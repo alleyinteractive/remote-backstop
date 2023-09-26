@@ -8,17 +8,19 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="remote backstop">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="true">
+	<coverage
+			includeUncoveredFiles="true"
+			processUncoveredFiles="true">
+		<include>
 			<directory suffix=".php">./</directory>
-			<exclude>
-				<directory suffix=".php">./tests/</directory>
-				<directory suffix=".php">./bin/</directory>
-			</exclude>
-		</whitelist>
-	</filter>
+		</include>
+		<exclude>
+			<directory suffix=".php">./tests/</directory>
+			<directory suffix=".php">./bin/</directory>
+		</exclude>
+	</coverage>
 </phpunit>
