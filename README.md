@@ -33,6 +33,7 @@ Most of the plugin's functionality is easily manipulable using the provided filt
 
 * Cookies are not cached with the remote response.
 * By default, this plugin **requires** a persistent object cache (e.g. memcached, redis).
+* Any backstopped request (that is, any request which this plugin intercepts) is forced to have a maximum timeout of 3 seconds.
 
 ## Customizations
 
